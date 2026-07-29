@@ -1,1 +1,1 @@
-:re, hasmet's successor.
+:re, the renderer, hasmet's successor.
