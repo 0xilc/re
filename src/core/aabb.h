@@ -7,8 +7,8 @@
 namespace re {
 
 struct AABB {
-  float3 hi;
   float3 lo;
+  float3 hi;
 };
 
 RE_HD inline AABB aabb_empty() {
