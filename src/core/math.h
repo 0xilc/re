@@ -3,6 +3,8 @@
 #include "types.h"
 #include <cmath>
 
+#define INF INFINITY
+
 namespace re {
 
 // Scalar Math
@@ -93,5 +95,21 @@ RE_HD inline float3 normalize(float3 v) {
 
 RE_HD inline float3 lerp(float3 a, float3 b, float t) {
   return a + (b - a) * t;
+}
+
+RE_HD inline float3 min3(float3 a, float3 b) {
+  return float3(
+    fminf(a.x, b.x),
+    fminf(a.y, b.y),
+    fminf(a.z, b.z)
+  );
+}
+
+RE_HD inline float3 max3(float3 a, float3 b) {
+  return float3(
+    fmaxf(a.x, b.x),
+    fmaxf(a.y, b.y),
+    fmaxf(a.z, b.z)
+  );
 }
 }
