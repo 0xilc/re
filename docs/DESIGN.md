@@ -17,3 +17,5 @@
 5. Film Accumulation Threading
   Using tile based strategy, each tile is belong to one thread.
 
+6. Primitives Alignment
+  Read: [https://leimao.github.io/blog/CUDA-Data-Alignment/]
