@@ -1,11 +1,12 @@
 #pragma once
 
+#include "platform.h"
 #include "types.h"
 #include <cmath>
 
-#define INF INFINITY
-
 namespace re {
+
+inline constexpr float INF = INFINITY;
 
 // Scalar Math
 RE_HD inline float clamp(float v, float lo, float hi) {
@@ -42,6 +43,15 @@ RE_HD inline float3 operator/(float3 a, float s) {
     return float3(a.x * inv, a.y * inv, a.z * inv);
 }
 
+RE_HD inline float3 operator*(float s, float3 a) {
+    return float3(a.x * s, a.y * s, a.z * s);
+}
+
+RE_HD inline float3 operator/(float s, float3 a) {
+    float inv = 1.0f / s;
+    return float3(a.x * inv, a.y * inv, a.z * inv);
+}
+
 RE_HD inline float4 operator+(float4 a, float4 b) {
     return float4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
 }
@@ -62,6 +72,16 @@ RE_HD inline float4 operator/(float4 a, float s) {
     float inv = 1.0f / s;
     return float4(a.x * inv, a.y * inv, a.z * inv, a.w * inv);
 }
+
+RE_HD inline float4 operator*(float s, float4 a) {
+    return float4(a.x * s, a.y * s, a.z * s, a.w * s);
+}
+
+RE_HD inline float4 operator/(float s, float4 a) {
+    float inv = 1.0f / s;
+    return float4(a.x * inv, a.y * inv, a.z * inv, a.w * inv);
+}
+
 
 // Vector Math
 RE_HD inline float dot(float3 a, float3 b) {

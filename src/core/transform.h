@@ -70,6 +70,7 @@ RE_HD inline Transform inverse(const Transform& t) {
   return inv;
 }
 
+// Applies b first then a. So it's: A * B in matrix multiplication.
 RE_HD inline Transform compose(const Transform& a, const Transform& b) {
   Transform c;
   for (int i = 0; i < 3; ++i) {
