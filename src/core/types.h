@@ -20,11 +20,18 @@ struct alignas(4) float3 {
   RE_HD float3(float x_, float y_, float z_): x(x_), y(y_), z(z_) {}
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
 struct alignas(16) float4 {
-  float x, y, z, w;
+  union {
+    struct { float x, y, z, w; };
+    float3 xyz;
+  };
   
   RE_HD float4(): x(0.0f), y(0.0f), z(0.0f), w(0.0f) {}
   RE_HD float4(float v): x(v), y(v), z(v), w(v) {}
   RE_HD float4(float x_, float y_, float z_, float w_): x(x_), y(y_), z(z_), w(w_) {}
+  RE_HD float4(const float3& xyz_, float w_): x(xyz_.x), y(xyz_.y), z(xyz_.z), w(w_) {}
 };
+#pragma GCC diagnostic pop
 }
