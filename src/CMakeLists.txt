@@ -1,5 +1,4 @@
 add_library(re_core
-  main.cpp
   core/log.cpp
   config/config.cpp
 )
