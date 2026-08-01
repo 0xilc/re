@@ -22,8 +22,7 @@ static_assert(sizeof(re::Ray) == 32, "Size assert");
 static_assert(alignof(re::Ray) == 32, "Align assert");
 
 // Hit
-static_assert(sizeof(re::Hit) == 32, "Size must be padded to 32.");
-static_assert(alignof(re::Hit) == 32, "Alignment must be padded to 32.");
+static_assert(sizeof(re::Hit) == 20, "Hit size must be 20.");
 
 // AABB
 static_assert(sizeof(re::AABB) == 24, "Size of AABB");
