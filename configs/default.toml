@@ -1,0 +1,11 @@
+[render]
+width     = 801
+height    = 600
+spp       = 16
+max_depth = 8
+
+[scene]
+file = ""
+
+[output]
+file = "out.png"
