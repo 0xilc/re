@@ -18,7 +18,6 @@ struct TriangleHit {
 // Ray dir should be normalized
 // No backface culling
 // [Möller-Trumbore Intersection Algorithm]
-// [https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm]
 RE_HD inline bool intersect_triangle(const Ray& ray, const Triangle& tri, TriangleHit& out) {
   const float3 e1 = tri.v1 - tri.v0;
   const float3 e2 = tri.v2 - tri.v0;
@@ -32,11 +31,11 @@ RE_HD inline bool intersect_triangle(const Ray& ray, const Triangle& tri, Triang
   
   const float sgn = (det < 0.0f) ? -1.0f : 1.0f;
   const float abs_det = det * sgn;
-  const float3 qvec = cross(tvec, e1);
-
+  
   const float su = dot(tvec, pvec) * sgn;
   if (su < 0.0f || su > abs_det) return false;
-
+  
+  const float3 qvec = cross(tvec, e1);
   const float sv = dot(ray.dir, qvec) * sgn;
   if (sv < 0.0f || su + sv > abs_det) return false;
 
