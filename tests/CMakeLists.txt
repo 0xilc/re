@@ -3,6 +3,7 @@ add_executable(re_tests
   unit/test_sizeof_layout.cpp
   unit/test_aabb.cpp
   unit/test_transform.cpp
+  unit/test_triangle_intersection.cpp
 )
 
 target_link_libraries(re_tests PRIVATE doctest re_core)
