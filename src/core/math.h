@@ -7,7 +7,7 @@
 namespace re {
 
 inline constexpr float INF = INFINITY;
-
+inline constexpr float PI  = 3.14159265359f;
 // Scalar Math
 RE_HD inline float clamp(float v, float lo, float hi) {
   return fmaxf(lo, fminf(v, hi));
