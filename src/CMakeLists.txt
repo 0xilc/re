@@ -4,9 +4,10 @@ add_library(re_core
   accel/brute_accel.cpp
   film/film.cpp
   film/tonemap.cpp
+  io/image_io.cpp
 )
 target_include_directories(re_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(re_core PUBLIC re_warnings tomlplusplus)
+target_link_libraries(re_core PUBLIC re_warnings tomlplusplus stb_image)
 
 add_executable(re main.cpp)
 target_link_libraries(re PRIVATE re_core)
