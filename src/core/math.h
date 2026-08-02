@@ -26,6 +26,10 @@ RE_HD inline float3 operator+(float3 a, float3 b) {
     return float3(a.x + b.x, a.y + b.y, a.z + b.z);
 }
 
+RE_HD inline float3 operator+(float3 a, float s) {
+    return float3(a.x + s, a.y + s, a.z + s);
+}
+
 RE_HD inline float3 operator-(float3 a, float3 b) {
     return float3(a.x - b.x, a.y - b.y, a.z - b.z);
 }
