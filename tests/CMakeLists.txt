@@ -4,6 +4,7 @@ add_executable(re_tests
   unit/test_aabb.cpp
   unit/test_transform.cpp
   unit/test_triangle_intersection.cpp
+  unit/test_triangle.cpp
 )
 
 target_link_libraries(re_tests PRIVATE doctest re_core)
