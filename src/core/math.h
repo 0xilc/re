@@ -6,8 +6,13 @@
 
 namespace re {
 
-inline constexpr float INF = INFINITY;
-inline constexpr float PI  = 3.14159265359f;
+// Numerical Constants
+inline constexpr float INF        = INFINITY;
+inline constexpr float PI         = 3.14159265358979323846f;
+inline constexpr float TWO_PI     = 6.28318530717958647692f;
+inline constexpr float INV_PI     = 0.31830988618379067154f;
+inline constexpr float INV_TWO_PI = 0.15915494309189533577f;
+
 // Scalar Math
 RE_HD inline float clamp(float v, float lo, float hi) {
   return fmaxf(lo, fminf(v, hi));
@@ -85,7 +90,6 @@ RE_HD inline float4 operator/(float s, float4 a) {
     float inv = 1.0f / s;
     return float4(a.x * inv, a.y * inv, a.z * inv, a.w * inv);
 }
-
 
 // Vector Math
 RE_HD inline float dot(float3 a, float3 b) {
