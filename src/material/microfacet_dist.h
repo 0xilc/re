@@ -7,6 +7,8 @@
 namespace re {
 
 inline constexpr float kMinAlpha = 1e-3f;
+ 
+RE_HD inline float clamp_alpha(float alpha) { return alpha < kMinAlpha ? kMinAlpha : alpha; }
 
 RE_HD inline float ggx_d(const float3& wm, float alpha) {
   const float c2 = local::cos2_theta(wm);
