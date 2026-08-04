@@ -36,4 +36,14 @@ RE_HD inline Frame make_frame(const float3& n) {
   return f;
 }
 
+// Operate on vectors that are in local space 
+namespace local {
+  RE_HD inline float cos_theta(const float3& w)     { return w.z; }
+  RE_HD inline float abs_cos_theta(const float3& w) { return fabsf(w.z); }
+  RE_HD inline float cos2_theta(const float3& w)    { return w.z * w.z; }
+  RE_HD inline float sin2_theta(const float3& w)    { return fmaxf(0.0f, 1.0f - w.z * w.z); }
+  RE_HD inline float tan2_theta(const float3& w)    { return sin2_theta(w) / (w.z * w.z); }
+  RE_HD inline bool  same_hemisphere(const float3& a, const float3& b) { return a.z * b.z > 0.0f; }
+};
+
 }
