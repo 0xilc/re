@@ -8,6 +8,7 @@ add_executable(re_tests
   unit/test_sampler.cpp
   bxdf/test_chi_square.cpp
   bxdf/test_white_furnace.cpp
+  bxdf/test_reciprocity.cpp
 )
 
 target_link_libraries(re_tests PRIVATE doctest re_core)
