@@ -7,6 +7,7 @@ add_executable(re_tests
   unit/test_triangle.cpp
   unit/test_sampler.cpp
   bxdf/test_chi_square.cpp
+  bxdf/test_white_furnace.cpp
 )
 
 target_link_libraries(re_tests PRIVATE doctest re_core)
