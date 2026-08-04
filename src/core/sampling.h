@@ -14,10 +14,10 @@ RE_HD inline float2 sample_uniform_disk(float2 u) {
   float r, phi;
   if (a * a > b * b) {
     r = a;
-    phi = (PI / 4.0f) * (b / a);
+    phi = (kPi / 4.0f) * (b / a);
   } else {
     r = b;
-    phi = (PI / 2.0f) - (PI / 4.0f) * (a / b);
+    phi = (kPi / 2.0f) - (kPi / 4.0f) * (a / b);
   }
 
   return float2{r * cosf(phi), r * sinf(phi)};
@@ -26,13 +26,13 @@ RE_HD inline float2 sample_uniform_disk(float2 u) {
 RE_HD inline float3 sample_uniform_hemisphere(float2 u) {
   const float z = u.x;
   const float r = safe_sqrt(1.0f - z * z);
-  const float phi = TWO_PI * u.y;
+  const float phi = kTwoPi * u.y;
   
   return float3{r * cosf(phi), r * sinf(phi), z};
 }
 
 RE_HD inline float pdf_uniform_hemisphere(float cos_theta) {
-  return cos_theta > 0.0f ? INV_TWO_PI : 0.0f;
+  return cos_theta > 0.0f ? kInvTwoPi : 0.0f;
 }
 
 RE_HD inline float3 sample_cosine_hemisphere(float2 u) {
@@ -43,7 +43,7 @@ RE_HD inline float3 sample_cosine_hemisphere(float2 u) {
 }
 
 RE_HD inline float pdf_cosine_hemisphere(float cos_theta) {
-  return cos_theta > 0.0f ? cos_theta * INV_PI : 0.0f;
+  return cos_theta > 0.0f ? cos_theta * kInvPi : 0.0f;
 }
 
 }

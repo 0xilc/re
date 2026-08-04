@@ -7,11 +7,11 @@
 namespace re {
 
 // Numerical Constants
-inline constexpr float INF        = INFINITY;
-inline constexpr float PI         = 3.14159265358979323846f;
-inline constexpr float TWO_PI     = 6.28318530717958647692f;
-inline constexpr float INV_PI     = 0.31830988618379067154f;
-inline constexpr float INV_TWO_PI = 0.15915494309189533577f;
+inline constexpr float kInf         = INFINITY;
+inline constexpr float kPi          = 3.14159265358979323846f;
+inline constexpr float kTwoPi       = 6.28318530717958647692f;
+inline constexpr float kInvPi       = 0.31830988618379067154f;
+inline constexpr float kInvTwoPi    = 0.15915494309189533577f;
 
 // Scalar Math
 RE_HD inline float clamp(float v, float lo, float hi) {

@@ -13,8 +13,8 @@ struct AABB {
 
 RE_HD inline AABB aabb_empty() {
   return {
-    { +INF, +INF, +INF },
-    { -INF, -INF, -INF }
+    { +kInf, +kInf, +kInf },
+    { -kInf, -kInf, -kInf }
   };
 }
 

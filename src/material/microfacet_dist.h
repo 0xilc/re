@@ -12,7 +12,7 @@ RE_HD inline float ggx_d(const float3& wm, float alpha) {
   const float c2 = local::cos2_theta(wm);
   const float a2 = alpha * alpha;
   const float t = (a2 - 1.0f) * c2 + 1.0f;
-  return a2 / (PI * t * t);
+  return a2 / (kPi * t * t);
 }
 
 // Smith's lambda

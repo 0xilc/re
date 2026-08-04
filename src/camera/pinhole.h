@@ -35,7 +35,7 @@ inline PinholeParams make_pinhole(const float3& look_from,
   right = normalize(right);
   float3 up = cross(right, c.forward);
 
-  const float tan_half = tanf(vfov_degrees * 0.5f * (PI / 180.0f));
+  const float tan_half = tanf(vfov_degrees * 0.5f * (kPi / 180.0f));
   const float aspect = float(width) / float(height);
 
   c.right_scaled = right * (tan_half * aspect);
@@ -54,7 +54,7 @@ RE_HD inline Ray generate_ray(const PinholeParams& c, int px, int py, const floa
   r.origin = c.origin;
   r.dir = normalize(c.forward + c.right_scaled * sx + c.up_scaled * sy);
   r.tmin = 0.0f;
-  r.tmax = INF;
+  r.tmax = kInf;
 
   return r;
 }

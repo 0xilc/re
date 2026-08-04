@@ -9,7 +9,7 @@ struct alignas(32) Ray {
   float3 origin;
   float tmin = 0.0f;
   float3 dir;
-  float tmax = INF;
+  float tmax = kInf;
 };
 
 }
