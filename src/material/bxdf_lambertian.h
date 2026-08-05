@@ -14,7 +14,7 @@ struct LambertianLobe {
 };
 
 RE_HD inline Spectrum lambertian_eval(const LambertianLobe& lobe, const float3& wo, const float3& wi) {
-  if (!local::same_hemisphere(wo, wi)) return Spectrum {0.0f};
+  if (!local::same_hemisphere(wo, wi)) return make_empty_spectrum();
   return lobe.albedo * kInvPi;
 }
 
@@ -24,10 +24,11 @@ RE_HD inline float lambertian_pdf(const float3& wo, const float3& wi) {
 }
 
 RE_HD inline BsdfSample lambertian_sample(const LambertianLobe& lobe, const float3& wo, float2 u) {
-  float3 wi = sample_cosine_hemisphere(u);
+  if (wo.z == 0.0f) return invalid_sample();
   
+  float3 wi = sample_cosine_hemisphere(u);
   if (wo.z < 0.0f) wi.z = -wi.z;
-
+  
   BsdfSample s;
   s.wi = wi;
   s.f = lobe.albedo * kInvPi;

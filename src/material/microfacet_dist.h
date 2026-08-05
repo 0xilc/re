@@ -54,6 +54,8 @@ RE_HD inline float3 ggx_sample_vndf(const float3& wo, float alpha, float2 u) {
   return normalize(float3{alpha * nh.x, alpha * nh.y, fmaxf(0.0f, nh.z)});
 }
 
+// Unused now, since the reflection jacobian cancels dot(wo, wm); 
+// needed for the transmission lobe in the future.
 RE_HD inline float ggx_vndf_pdf(const float3& wo, const float3& wm, float alpha) {
   const float cos_o = local::abs_cos_theta(wo);
   const float dot_wo_wm = dot(wo, wm);

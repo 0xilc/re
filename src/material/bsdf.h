@@ -28,9 +28,9 @@ RE_HD inline Spectrum lobe_eval(const Lobe& lobe, const float3& wo, const float3
       return lambertian_eval(lobe.lambertian, wo, wi);
     case LobeTag::Microfacet:
       return microfacet_eval(lobe.microfacet, wo, wi);
-    default:
-      return make_empty_spectrum();
   }
+
+  return make_empty_spectrum();
 }
 
 RE_HD inline float lobe_pdf(const Lobe& lobe, const float3& wo, const float3& wi) {
@@ -39,9 +39,9 @@ RE_HD inline float lobe_pdf(const Lobe& lobe, const float3& wo, const float3& wi
       return lambertian_pdf(wo, wi);
     case LobeTag::Microfacet:
       return microfacet_pdf(lobe.microfacet, wo, wi);
-    default:
-      return 0.0f;
   }
+
+  return 0.0f;
 }
 
 RE_HD inline BsdfSample lobe_sample(const Lobe& lobe, const float3& wo, float2 u) {
@@ -49,10 +49,10 @@ RE_HD inline BsdfSample lobe_sample(const Lobe& lobe, const float3& wo, float2 u
     case LobeTag::Lambertian:
       return lambertian_sample(lobe.lambertian, wo, u);
     case LobeTag::Microfacet:
-      return microfacet_sample(lobe.microfacet, wo, u);
-    default:
-      return invalid_sample();
+      return microfacet_sample(lobe.microfacet, wo, u);      
   }
+
+  return invalid_sample();
 }
 
 // --- BSDF
@@ -95,14 +95,21 @@ RE_HD inline BsdfSample bsdf_sample(const Bsdf& bsdf, const float3& wo, float u_
   }
 
   const BsdfSample picked = lobe_sample(bsdf.lobes[index], wo, u);
-  if (picked.pdf <= 0.0f) return invalid_sample();
+  if (!(picked.pdf > 0.0f)) return invalid_sample();
+
+  if (picked.is_delta) {
+    BsdfSample s = picked;
+    s.pdf = bsdf.selected_prob[index] * picked.pdf;
+    return s;
+  }
 
   BsdfSample s;
   s.wi = picked.wi;
   s.f = bsdf_eval(bsdf, wo, picked.wi);
   s.pdf = bsdf_pdf(bsdf, wo, picked.wi);
+  s.is_delta = false;
 
-  return s;
+  return s.pdf > 0.0f ? s : invalid_sample();
 }
 
 }

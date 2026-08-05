@@ -17,10 +17,11 @@ struct BsdfSample{
   float3 wi;
   Spectrum f;
   float pdf;
+  bool is_delta = false;
 };
 
 RE_HD inline BsdfSample invalid_sample() {
-  return BsdfSample {float3{0.0f, 0.0f, 1.0f}, Spectrum{0.0f, 0.0f, 0.0f}, 0.0f};
+  return BsdfSample {float3{0.0f, 0.0f, 1.0f}, make_empty_spectrum(), 0.0f, false};
 }
 
 RE_HD inline float3 reflect(const float3& w, const float3& n) {

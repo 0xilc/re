@@ -21,7 +21,7 @@ inline re::Spectrum eval(const TestLobe& l, const re::float3& wo, const re::floa
         case TestLobe::Kind::Lambertian: return re::lambertian_eval(l.lambertian, wo, wi);
         case TestLobe::Kind::Microfacet: return re::microfacet_eval(l.microfacet, wo, wi);
     }
-    return re::Spectrum{0.0f, 0.0f, 0.0f};
+    return re::make_empty_spectrum();
 }
 
 inline float pdf(const TestLobe& l, const re::float3& wo, const re::float3& wi) {
