@@ -59,7 +59,7 @@ RE_HD inline BsdfSample lobe_sample(const Lobe& lobe, const float3& wo, float2 u
 struct Bsdf {
   Lobe lobes[kMaxLobes];
   float selected_prob[kMaxLobes];
-  int count;
+  int count = 0;
 };
 
 RE_HD inline Spectrum bsdf_eval(const Bsdf& bsdf, const float3& wo, const float3& wi) {
@@ -112,4 +112,26 @@ RE_HD inline BsdfSample bsdf_sample(const Bsdf& bsdf, const float3& wo, float u_
   return s.pdf > 0.0f ? s : invalid_sample();
 }
 
+RE_HD inline void bsdf_add_lobe(Bsdf& bsdf, const Lobe& lobe, float weight) {
+  if (bsdf.count >= kMaxLobes || !(weight > 0.0f)) return;
+  bsdf.lobes[bsdf.count] = lobe;
+  bsdf.selected_prob[bsdf.count] = weight;
+  ++bsdf.count;
+}
+
+RE_HD inline void bsdf_finalize(Bsdf& bsdf) {
+  float sum = 0.0f;
+  for (int i = 0; i < bsdf.count; ++i) {
+    sum += bsdf.selected_prob[i];
+  }
+  if (!(sum > 0.0f)) {
+    bsdf.count = 0;
+    return;
+  }
+
+  const float inv = 1.0f / sum;
+  for (int i = 0; i < bsdf.count; ++i) {
+    bsdf.selected_prob[i] *= inv;
+  }
+}
 }
