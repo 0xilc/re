@@ -99,15 +99,23 @@ inline std::vector<TestLobe> coloured_lobes() {
         make_composite(0.5f, 0.5f, 0.25f, "composite half-metal")
     };
 }
+
 inline std::vector<re::float3> test_wo() {
-    std::vector<re::float3> wo = {
-        {0.0f, 0.0f, 1.0f},                    // normal incidence
-        {0.5f, 0.0f, 0.8660254f},              // 30 degrees
-        {0.7071068f, 0.0f, 0.7071068f},        // 45 degrees
-        {0.3420201f, 0.5868241f, 0.7340425f},  // off-axis in phi
-        {0.9848078f, 0.0f, 0.1736482f},        // 80 degrees
-        {0.9999500f, 0.0f, 0.0100000f},        // grazing
-    };
+    constexpr float kThetaDeg[] = {0.0f, 30.0f, 45.0f, 80.0f, 89.4f};
+    constexpr float kPhiDeg[]   = {0.0f, 59.7f};
+
+    std::vector<re::float3> wo;
+    for (float theta_deg : kThetaDeg) {
+        for (float phi_deg : kPhiDeg) {
+            const float theta = theta_deg * re::kPi / 180.0f;
+            const float phi   = phi_deg * re::kPi / 180.0f;
+            const float st    = std::sin(theta);
+            const re::float3 up{st * std::cos(phi), st * std::sin(phi), std::cos(theta)};
+            wo.push_back(up);
+            wo.push_back(re::float3{up.x, up.y, -up.z});  // same angle, back side
+        }
+    }
+    
     return wo;
 }
 }
