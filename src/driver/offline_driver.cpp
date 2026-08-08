@@ -45,7 +45,7 @@ bool run_offline(const OfflineSettings& settings) {
                                             float3{0.0f, 1.0f, 0.0f},
                                             settings.fov_y_deg, settings.width, settings.height);
   Film film(settings.width, settings.height);
-  const CpuDebugRenderer renderer(geometry, accel);
+  const CpuDebugRenderer renderer(geometry, accel, DebugMode::Lambert);
   const auto t0 = std::chrono::steady_clock::now();
   renderer.render(camera, film);
   const auto t1 = std::chrono::steady_clock::now();
