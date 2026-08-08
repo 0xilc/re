@@ -14,9 +14,10 @@ double directional_albedo(const bxdftest::TestLobe& lobe, const re::float3& wo, 
 
     for (int n = 0; n < kSamples; ++n) {
         re::Sampler      sampler(seed, n & 0xFFFF, n >> 16);
+        const float u_lobe = sampler.next_1d();
         const re::float2 u = sampler.next_2d();
 
-        const re::BsdfSample s = bxdftest::sample(lobe, wo, u);
+        const re::BsdfSample s = bxdftest::sample(lobe, wo, u_lobe, u);
         if (s.pdf <= 0.0f) continue;
 
         sum += static_cast<double>(s.f.x) * std::fabs(s.wi.z) / s.pdf;

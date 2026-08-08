@@ -9,8 +9,9 @@ TEST_CASE("sample agrees with eval and pdf on the direction it returns") {
         for (const auto& wo : bxdftest::test_wo()) {
             for (int n = 0; n < 500; ++n) {
                 re::Sampler sampler(seed, n, 0);
-
-                const re::BsdfSample s = bxdftest::sample(lobe, wo, sampler.next_2d());
+                const float u_lobe = sampler.next_1d();
+                const re::float2 u = sampler.next_2d();
+                const re::BsdfSample s = bxdftest::sample(lobe, wo, u_lobe, u);
                 if (s.pdf <= 0.0f) continue;
 
                 CAPTURE(lobe.name);
