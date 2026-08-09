@@ -3,6 +3,7 @@
 #include "accel/intersect_triangle.h"
 #include "core/frame.h"
 #include "core/hit.h"
+#include "core/spectrum.h"
 #include "material/bsdf.h"
 #include "material/material_factory.h"
 
@@ -14,7 +15,13 @@ namespace
   const float3 missColor(0.05f);
   const float3 kLightDir = normalize(float3{0.3f, 1.0f, 0.4f});
   const Spectrum kLightRadiance{3.0f, 2.9f, 2.7f};
-  const Material kDebugMaterial{Spectrum{0.7f, 0.7f, 0.75f}, 0.0f, 0.4f};
+  
+  const Material kDebugMaterial = make_material(
+    Spectrum{0.5f, 0.7f, 0.3f},
+    0.5f,
+    0.0f,
+    make_empty_spectrum()
+  );
 
   float3 geometric_normal(const Triangle& tri)
   {

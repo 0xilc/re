@@ -3,6 +3,7 @@
 #include "core/ray.h"
 #include "core/hit.h"
 #include "core/aabb.h"
+#include "scene/material.h"
 
 static_assert(sizeof(re::float2) == 8, "Size Assert");
 static_assert(alignof(re::float2) == 8, "Align Assert");
@@ -26,3 +27,6 @@ static_assert(sizeof(re::Hit) == 20, "Hit size must be 20.");
 
 // AABB
 static_assert(sizeof(re::AABB) == 24, "Size of AABB");
+
+// Material
+static_assert(sizeof(re::Material) == 64, "Check size of Material.");

@@ -3,16 +3,11 @@
 #include "core/frame.h"
 #include "material/bsdf.h"
 #include "core/spectrum.h"
+#include "scene/material.h"
 
 namespace re {
 
 inline constexpr float kDielectricF0 = 0.04f;
-
-struct Material {
-  Spectrum base_color;
-  float metallic;
-  float roughness;
-};
 
 RE_HD inline Bsdf make_bsdf(const Material& mat, const float3& wo) {
   Bsdf bsdf;
