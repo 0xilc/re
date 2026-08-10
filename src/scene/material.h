@@ -24,8 +24,10 @@ struct alignas(64) Material {
   }
 };
 
-
-RE_HD inline Material make_material(const Spectrum& base_color, float metallic, float roughness, const Spectrum& emission) {
+RE_HD inline Material make_material(const Spectrum& base_color, 
+                                    float metallic, 
+                                    float roughness, 
+                                    const Spectrum& emission = Spectrum{0.0f, 0.0f, 0.0f}) {
   Material m;
   m.base_color = base_color;
   m.emission = emission;
