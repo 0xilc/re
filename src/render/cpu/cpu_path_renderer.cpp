@@ -17,10 +17,16 @@ void CpuPathRenderer::render(const PinholeParams& camera, Film& film) const {
 
       for (int s = 0; s < spp; ++s) {
         Sampler sampler(x, y, s);
-
         const Ray ray = generate_ray(camera, x, y, sampler.next_2d());
 
-        sum = sum + li_native(ray, scene_, services_, sampler, settings_.max_depth);
+        switch (settings_.mode) {
+          case IntegratorMode::Naive:
+            sum = sum + li_naive(ray, scene_, services_, sampler, settings_.max_depth);
+            break;
+          case IntegratorMode::Nee:
+            sum = sum + li_nee(ray, scene_, lights_, services_, sampler, settings_.max_depth);
+            break;    
+        }
       }
 
       film.set_pixel(x, y, sum * inv_spp);

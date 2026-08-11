@@ -15,7 +15,7 @@ namespace re
 {
 
 template <Services S>
-RE_HD inline Spectrum li_native(const Ray &camera_ray,
+RE_HD inline Spectrum li_naive(const Ray &camera_ray,
                                 const SceneView &scene,
                                 const S &services,
                                 Sampler &sampler,

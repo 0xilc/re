@@ -20,16 +20,18 @@ bool run_offline(const OfflineSettings& settings) {
   BruteAccel accel;
   accel.build(scene.geometry());
 
-  SceneView view;
-  view.geometry = scene.geometry();
-  view.materials = scene.material_table();
-  view.material_count = static_cast<int>(scene.materials.size());
+  SceneView scene_view;
+  scene_view.geometry = scene.geometry();
+  scene_view.materials = scene.material_table();
+  scene_view.material_count = static_cast<int>(scene.materials.size());
+
   const PinholeParams camera = make_pinhole(float3{0.0f, 0.0f, 1.08f},
                                             float3{0.0f, 0.0f, 0.0f},
                                             float3{0.0f, 1.0f, 0.0f},
                                             45.0f, settings.width, settings.height);
   const CpuServices services(accel);
-  const CpuPathRenderer path_renderer(view, services, PathRenderSettings{2048, 8});
+  const CpuPathRenderer path_renderer(
+    scene_view, scene.light_view(), services, PathRenderSettings{16, 8, IntegratorMode::Nee});
 
   Film film(settings.width, settings.height);
   const auto t0 = std::chrono::steady_clock::now();

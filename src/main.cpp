@@ -6,8 +6,8 @@
 int main() {
   re::log_info("re, re, raaaw!");
   re::OfflineSettings driver_settings{
-    .width = 128,
-    .height = 128,
+    .width = 512,
+    .height = 512,
     .fov_y_deg = 45.0f
   };
   return re::run_offline(driver_settings)? 0 : 1;
