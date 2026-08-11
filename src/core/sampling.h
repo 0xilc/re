@@ -46,4 +46,8 @@ RE_HD inline float pdf_cosine_hemisphere(float cos_theta) {
   return cos_theta > 0.0f ? cos_theta * kInvPi : 0.0f;
 }
 
+RE_HD inline float2 sample_uniform_triangle(float2 u) {
+  const float su = safe_sqrt(u.x);
+  return float2{1.0f - su, u.y * su};
+}
 }
