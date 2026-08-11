@@ -8,7 +8,10 @@
 #include "film/tonemap.h"
 #include "io/image_io.h"
 #include "render/cpu/cpu_debug_renderer.h"
+#include "render/cpu/cpu_path_renderer.h"
 #include "scene/scene_builder.h"
+#include "scene/scene_view.h"
+
 
 namespace re {
 
@@ -17,14 +20,20 @@ bool run_offline(const OfflineSettings& settings) {
   BruteAccel accel;
   accel.build(scene.geometry());
 
+  SceneView view;
+  view.geometry = scene.geometry();
+  view.materials = scene.material_table();
+  view.material_count = static_cast<int>(scene.materials.size());
   const PinholeParams camera = make_pinhole(float3{0.0f, 0.0f, 1.08f},
                                             float3{0.0f, 0.0f, 0.0f},
                                             float3{0.0f, 1.0f, 0.0f},
-                                            38.0f, settings.width, settings.height);
+                                            45.0f, settings.width, settings.height);
+  const CpuServices services(accel);
+  const CpuPathRenderer path_renderer(view, services, PathRenderSettings{2048, 8});
+
   Film film(settings.width, settings.height);
-  const CpuDebugRenderer renderer(scene.geometry(), accel, DebugMode::Normals);
   const auto t0 = std::chrono::steady_clock::now();
-  renderer.render(camera, film);
+  path_renderer.render(camera, film);
   const auto t1 = std::chrono::steady_clock::now();
 
   const double seconds = std::chrono::duration<double>(t1 - t0).count();
