@@ -1,5 +1,7 @@
 #include "scene/scene_builder.h"
 #include "scene/material.h"
+#include "light/light_picker_build.h"
+
 namespace re {
 
 uint16_t Scene::add_material(const Material& material) {
@@ -45,6 +47,8 @@ void Scene::finalize() {
       emissive_prims.push_back(prim);
     }
   }
+
+  light_cdf = build_light_cdf(geometry(), material_table(), emissive_prims);
 }
 
 Scene make_cornell_scene() {

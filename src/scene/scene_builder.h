@@ -5,6 +5,7 @@
 
 #include "scene/geometry.h"
 #include "scene/material.h"
+#include "light/light_view.h"
 
 namespace re {
 struct Scene {
@@ -12,7 +13,7 @@ struct Scene {
   std::vector<uint32_t> indices;   // 3 per triangle
   std::vector<uint16_t> mat_ids;   // 1 per triangle
   std::vector<Material> materials;
-
+  std::vector<float> light_cdf;
   std::vector<int> emissive_prims;
 
   GeometryView geometry() const {
@@ -23,6 +24,15 @@ struct Scene {
     g.vertex_count   = static_cast<int>(positions.size());
     g.triangle_count = static_cast<int>(indices.size() / 3);
     return g;
+  }
+
+  LightView light_view() const {
+    LightView l;
+    l.prims = emissive_prims.data();
+    l.cdf = light_cdf.data();
+    l.count = static_cast<int>(emissive_prims.size());
+    
+    return l;
   }
 
   const Material* material_table() const { return materials.data(); }
