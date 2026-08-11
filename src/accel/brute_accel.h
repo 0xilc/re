@@ -10,6 +10,7 @@ class BruteAccel {
 public:
   void build(const GeometryView& mesh);
   Hit intersect(const Ray& ray) const;
+  bool occluded(const Ray& ray) const;
   
 private:
   GeometryView mesh_{};

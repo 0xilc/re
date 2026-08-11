@@ -26,4 +26,15 @@ Hit BruteAccel::intersect(const Ray& ray) const {
   return best;
 }
 
+bool BruteAccel::occluded(const Ray& ray) const {
+  for (int prim = 0; prim < mesh_.triangle_count; ++prim) {
+    TriangleHit th;
+    if (intersect_triangle(ray, get_triangle(mesh_, prim), th)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 }
