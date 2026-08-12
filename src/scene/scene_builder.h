@@ -15,6 +15,7 @@ struct Scene {
   std::vector<Material> materials;
   std::vector<float> light_cdf;
   std::vector<int> emissive_prims;
+  std::vector<int> prim_to_light;
 
   GeometryView geometry() const {
     GeometryView g;
@@ -30,6 +31,7 @@ struct Scene {
     LightView l;
     l.prims = emissive_prims.data();
     l.cdf = light_cdf.data();
+    l.prim_to_light = prim_to_light.data();
     l.count = static_cast<int>(emissive_prims.size());
     
     return l;

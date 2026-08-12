@@ -8,6 +8,7 @@ namespace re {
 struct LightView {
   const int*    prims = nullptr;
   const float*  cdf   = nullptr;
+  const int*    prim_to_light = nullptr;
   int           count = 0;
 };
 

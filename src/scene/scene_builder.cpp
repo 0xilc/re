@@ -48,6 +48,11 @@ void Scene::finalize() {
     }
   }
 
+  prim_to_light.assign(static_cast<size_t>(triangle_count), -1);
+  for (size_t i = 0; i < emissive_prims.size(); ++i) {
+    prim_to_light[static_cast<size_t>(emissive_prims[i])] = static_cast<int>(i);
+  }
+
   light_cdf = build_light_cdf(geometry(), material_table(), emissive_prims);
 }
 
