@@ -79,8 +79,8 @@ Scene make_cornell_scene() {
   constexpr float lz = 0.0525f;
   constexpr float ly = hy - 0.001f;
   scene.add_quad({-lx, ly, -lz}, {lx, ly, -lz}, {lx, ly, lz}, {-lx, ly, lz}, lamp);
-  scene.add_box({-0.19f, -hy, -0.17f}, {-0.02f, -hy + 0.33f, 0.00f}, white);
-  scene.add_box({0.03f, -hy, 0.05f}, {0.20f, -hy + 0.165f, 0.22f}, white);
+  scene.add_box({-0.19f, -hy + 1e-4f, -0.17f}, {-0.02f, -hy + 0.33f, 0.00f}, white);
+  scene.add_box({0.03f, -hy + 1e-4f, 0.05f}, {0.20f, -hy + 0.165f, 0.22f}, white);
 
   scene.finalize();
   return scene;
