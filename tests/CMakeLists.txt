@@ -20,7 +20,5 @@ endfunction()
 add_subdirectory(unit)
 add_subdirectory(bxdf)
 
-add_custom_target(test-all
-  COMMENT "Running all tests"
-)
+add_custom_target(test-all COMMENT "Running all tests")
 add_dependencies(test-all test-unit test-bxdf)
