@@ -2,6 +2,7 @@ add_library(re_core
   core/log.cpp
   config/config.cpp
   accel/brute_accel.cpp
+  accel/embree_accel.cpp
   film/film.cpp
   film/tonemap.cpp
   io/image_io.cpp
