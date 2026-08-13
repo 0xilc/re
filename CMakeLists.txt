@@ -17,3 +17,4 @@ target_compile_options(re_warnings INTERFACE
 add_subdirectory(external)
 add_subdirectory(src)
 add_subdirectory(tests)
+add_subdirectory(tools)
