@@ -12,6 +12,7 @@ add_library(re_core
   scene/scene_builder.cpp
   light/light_picker_build.cpp
   parallel/thread_pool.cpp
+  parallel/scheduler.cpp
 )
 
 target_include_directories(re_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
