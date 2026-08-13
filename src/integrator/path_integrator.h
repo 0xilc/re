@@ -6,6 +6,7 @@
 #include "integrator/device_services.h"
 #include "integrator/nee.h"
 #include "integrator/path_state.h"
+#include "integrator/russian_roulette.h"
 #include "material/bsdf.h"
 #include "material/material_factory.h"
 #include "scene/scene_view.h"
@@ -49,7 +50,11 @@ RE_HD inline Spectrum li_naive(const Ray &camera_ray,
     const float3 wi = frame.to_world(bs.wi);
     const float3 p = tri.get_point(hit.u, hit.v);
     const float3 offset_n = dot(wi, ng) > 0.0f ? ng : -ng;
-    path.ray = make_ray(offset_ray_origin(p, offset_n), wi);
+    const float3 origin = offset_ray_origin(p, offset_n);
+    path.ray = make_ray(origin, wi);
+
+    const float u_rr = sampler.next_1d();
+    if (!russian_roulette(path.throughput, path.depth, u_rr)) break;
   }
 
   return path.radiance;
@@ -92,7 +97,11 @@ RE_HD inline Spectrum li_nee(const Ray& camera_ray, const SceneView& scene,
     path.specular_bounce = bs.is_delta;
     const float3 wi = frame.to_world(bs.wi);
     const float3 offset_n = dot(wi, ng) > 0.0f ? ng : -ng;
-    path.ray = make_ray(offset_ray_origin(pos, offset_n), wi);
+    const float3 origin = offset_ray_origin(pos, offset_n);
+    path.ray = make_ray(origin, wi);
+
+    const float u_rr = sampler.next_1d();
+    if (!russian_roulette(path.throughput, path.depth, u_rr)) break;
   }
 
   return path.radiance;
@@ -148,8 +157,10 @@ RE_HD inline Spectrum li_mis(const Ray& camera_ray, const SceneView& scene,
     const float3 wi = frame.to_world(bs.wi);
     const float3 offset_n = dot(wi, ng) > 0.0f ? ng : -ng;
     const float3 origin = offset_ray_origin(pos, offset_n);
-    prev_pos = origin;
     path.ray = make_ray(origin, wi);
+
+    const float u_rr = sampler.next_1d();
+    if (!russian_roulette(path.throughput, path.depth, u_rr)) break;
   }
 
   return path.radiance;
