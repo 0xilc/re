@@ -66,7 +66,7 @@ RE_HD inline LightSample sample_light(const SceneView& scene, const LightView& l
 
 RE_HD inline float light_pdf(const SceneView& scene, const LightView& lights, 
                              int light_index, const float3& shade_pos, 
-                             const float2& u_bary) 
+                             float u_u, float u_v) 
 {
   if (light_index < 0) return 0.0f;
 
@@ -75,7 +75,7 @@ RE_HD inline float light_pdf(const SceneView& scene, const LightView& lights,
   const float area = tri.area();
   if (area <= 0.0f) return 0.0f;
 
-  const float3 p = tri.get_point(u_bary.x, u_bary.y);
+  const float3 p = tri.get_point(u_u, u_v);
   const float3 n = tri.geometric_normal();
 
   const float3 to_light = p - shade_pos;

@@ -8,7 +8,7 @@
 
 namespace re {
 
-enum class IntegratorMode { Naive, Nee };
+enum class IntegratorMode { Naive, Nee, Mis };
 
 struct PathRenderSettings {
   int samples_per_pixel   = 64;

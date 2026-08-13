@@ -4,6 +4,7 @@
 #include "core/ray_offset.h"
 #include "core/sampler.h"
 #include "integrator/device_services.h"
+#include "integrator/mis.h"
 #include "light/light_sample.h"
 #include "material/bsdf.h"
 
@@ -30,7 +31,7 @@ RE_HD inline ShadowRecord invalid_shadow_record() {
 RE_HD inline ShadowRecord nee_propose(const SceneView& scene, const LightView& lights,
                                       const Bsdf& bsdf, const Frame& frame, const float3& pos,
                                       const float3& ng, const float3& wo_local,
-                                      const Spectrum& throughput, Sampler& sampler) 
+                                      const Spectrum& throughput, Sampler& sampler, bool apply_mis) 
 {
   const float u_pick = sampler.next_1d();
   const float2 u_pos = sampler.next_2d();
@@ -41,11 +42,18 @@ RE_HD inline ShadowRecord nee_propose(const SceneView& scene, const LightView& l
   if (!(ls.pdf > 0.0f)) return invalid_shadow_record();
 
   const float3 wi_local = frame.to_local(ls.wi);
+
   const Spectrum f = bsdf_eval(bsdf, wo_local, wi_local);
   const float cos_i = local::abs_cos_theta(wi_local);
   if (cos_i <= 0.0f) return invalid_shadow_record();
 
-  const Spectrum contribution = throughput * f * ls.radiance * (cos_i / ls.pdf);
+  float weight = 1.0f;
+  if (apply_mis && !ls.is_delta) {
+    const float pdf_bsdf = bsdf_pdf(bsdf, wo_local, wi_local);
+    weight = power_heuristic(ls.pdf, pdf_bsdf);
+  }
+
+  const Spectrum contribution = throughput * f * ls.radiance * (weight * cos_i / ls.pdf);
   if (luminance(contribution) <= 0.0f) return invalid_shadow_record();
   const float3 offset_n = dot(ls.wi, ng) > 0.0f ? ng : -ng;
 

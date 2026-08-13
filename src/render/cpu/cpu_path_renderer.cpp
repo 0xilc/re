@@ -25,7 +25,10 @@ void CpuPathRenderer::render(const PinholeParams& camera, Film& film) const {
             break;
           case IntegratorMode::Nee:
             sum = sum + li_nee(ray, scene_, lights_, services_, sampler, settings_.max_depth);
-            break;    
+            break;
+          case IntegratorMode::Mis:
+            sum = sum + li_mis(ray, scene_, lights_, services_, sampler, settings_.max_depth);
+            break;
         }
       }
 
