@@ -5,7 +5,8 @@
 #include <string>
 #include <vector>
 
-#include "bxdf_test_util.h"
+#include "bxdf/bxdf_test_util.h"
+#include "core/frame.h"
 #include "core/sampler.h"
 
 namespace {
@@ -14,14 +15,15 @@ constexpr int kMuBins  = 16;
 constexpr int kPhiBins = 32;
 constexpr int kSamples = 300000;
 
-re::float3 spherical_to_dir(double mu, double phi) {
+re::float3 spherical_to_dir(double mu, double phi, bool lower) {
     const double r = std::sqrt(std::max(0.0, 1.0 - mu * mu));
+    const double z = lower ? -mu : mu;
     return re::float3{static_cast<float>(r * std::cos(phi)),
-                      static_cast<float>(r * std::sin(phi)), static_cast<float>(mu)};
+                      static_cast<float>(r * std::sin(phi)), static_cast<float>(z)};
 }
 
-double integrate_cell(const bxdftest::TestLobe& lobe, const re::float3& wo, double mu0,
-                      double mu1, double phi0, double phi1, int n) {
+double integrate_cell(const bxdftest::TestLobe& lobe, const re::float3& wo, double mu0, double mu1,
+                      double phi0, double phi1, int n, bool lower) {
     const double dmu  = (mu1 - mu0) / n;
     const double dphi = (phi1 - phi0) / n;
 
@@ -30,20 +32,20 @@ double integrate_cell(const bxdftest::TestLobe& lobe, const re::float3& wo, doub
         for (int b = 0; b < n; ++b) {
             const double mu  = mu0 + (a + 0.5) * dmu;
             const double phi = phi0 + (b + 0.5) * dphi;
-            sum += bxdftest::pdf(lobe, wo, spherical_to_dir(mu, phi));
+            sum += bxdftest::pdf(lobe, wo, spherical_to_dir(mu, phi, lower));
         }
     }
     return sum * dmu * dphi;
 }
 
 double integrate_bin(const bxdftest::TestLobe& lobe, const re::float3& wo, double mu0, double mu1,
-                     double phi0, double phi1) {
+                     double phi0, double phi1, bool lower) {
     constexpr double kRelTol = 1e-4;
     constexpr int    kMaxN   = 256;
 
-    double prev = integrate_cell(lobe, wo, mu0, mu1, phi0, phi1, 4);
+    double prev = integrate_cell(lobe, wo, mu0, mu1, phi0, phi1, 4, lower);
     for (int n = 8; n <= kMaxN; n *= 2) {
-        const double cur = integrate_cell(lobe, wo, mu0, mu1, phi0, phi1, n);
+        const double cur = integrate_cell(lobe, wo, mu0, mu1, phi0, phi1, n, lower);
         if (std::fabs(cur - prev) <= kRelTol * std::max(cur, 1e-12)) return cur;
         prev = cur;
     }
@@ -53,13 +55,14 @@ double integrate_bin(const bxdftest::TestLobe& lobe, const re::float3& wo, doubl
 std::vector<double> integrate_pdf(const bxdftest::TestLobe& lobe, const re::float3& wo) {
     std::vector<double> expected(kMuBins * kPhiBins, 0.0);
 
-    const double dmu  = 1.0 / kMuBins;
-    const double dphi = 2.0 * 3.14159265358979323846 / kPhiBins;
+    const bool   lower = wo.z < 0.0f;
+    const double dmu   = 1.0 / kMuBins;
+    const double dphi  = 2.0 * 3.14159265358979323846 / kPhiBins;
 
     for (int i = 0; i < kMuBins; ++i) {
         for (int j = 0; j < kPhiBins; ++j) {
             expected[i * kPhiBins + j] =
-                integrate_bin(lobe, wo, i * dmu, (i + 1) * dmu, j * dphi, (j + 1) * dphi);
+                integrate_bin(lobe, wo, i * dmu, (i + 1) * dmu, j * dphi, (j + 1) * dphi, lower);
         }
     }
     return expected;
@@ -68,30 +71,30 @@ std::vector<double> integrate_pdf(const bxdftest::TestLobe& lobe, const re::floa
 struct ChiSquareResult {
     double statistic;
     int    dof;
-    int    below_horizon;
+    int    wrong_hemisphere;
     double expected_total;
     double observed_total;
 };
 
 ChiSquareResult run_chi_square(const bxdftest::TestLobe& lobe, const re::float3& wo, int seed) {
     std::vector<int> observed(kMuBins * kPhiBins, 0);
-    int              below_horizon = 0;
-    int              binned        = 0;
+    int              wrong_hemisphere = 0;
+    int              binned           = 0;
 
     for (int n = 0; n < kSamples; ++n) {
         re::Sampler      sampler(seed, n & 0xFFFF, n >> 16);
-        const float u_lobe = sampler.next_1d();
-        const re::float2 u = sampler.next_2d();
+        const float      u_lobe = sampler.next_1d();
+        const re::float2 u      = sampler.next_2d();
 
         const re::BsdfSample s = bxdftest::sample(lobe, wo, u_lobe, u);
         if (s.pdf <= 0.0f) continue;
 
-        if (s.wi.z <= 0.0f) {
-            ++below_horizon;
+        if (!re::local::same_hemisphere(wo, s.wi)) {
+            ++wrong_hemisphere;
             continue;
         }
 
-        int mu_bin = static_cast<int>(s.wi.z * kMuBins);
+        int mu_bin = static_cast<int>(std::fabs(s.wi.z) * kMuBins);
 
         float phi = std::atan2(s.wi.y, s.wi.x);
         if (phi < 0.0f) phi += 2.0f * 3.14159265358979f;
@@ -132,7 +135,7 @@ ChiSquareResult run_chi_square(const bxdftest::TestLobe& lobe, const re::float3&
         ++dof;
     }
 
-    return ChiSquareResult{chi2, dof, below_horizon, exp_total,
+    return ChiSquareResult{chi2, dof, wrong_hemisphere, exp_total,
                            static_cast<double>(binned) / kSamples};
 }
 
@@ -148,8 +151,7 @@ TEST_CASE("chi-square: sample and pdf describe the same distribution") {
 
             const ChiSquareResult r = run_chi_square(lobe, wo, seed++);
 
-            CHECK(r.below_horizon == 0);
-
+            CHECK(r.wrong_hemisphere == 0);
             CHECK(r.expected_total == doctest::Approx(r.observed_total).epsilon(2e-2));
 
             REQUIRE(r.dof > 0);
