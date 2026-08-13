@@ -42,6 +42,10 @@ bool run_offline(const OfflineSettings& settings) {
   log_info("Rendered {}x{} in {} seconds.", settings.width, settings.height, seconds);
 
   const std::vector<uint8_t> bytes = encode_srgb8(film);
+  if (film.nonfinite_count() > 0) {
+    log_error("{} non-finite samples were dropped; this image is not trustworthy", film.nonfinite_count());
+  }
+
   return write_png(settings.output_path, bytes.data(), film.width(), film.height());
 }
 
