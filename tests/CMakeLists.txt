@@ -20,6 +20,7 @@ endfunction()
 add_subdirectory(unit)
 add_subdirectory(bxdf)
 add_subdirectory(integration)
+add_subdirectory(golden)
 
 add_custom_target(test-all COMMENT "Running all tests")
-add_dependencies(test-all test-unit test-bxdf test-integration)
+add_dependencies(test-all test-unit test-bxdf test-integration test-golden)
