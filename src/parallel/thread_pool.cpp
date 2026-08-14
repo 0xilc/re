@@ -1,4 +1,5 @@
 #include "parallel/thread_pool.h"
+#include "core/log.h"
 
 namespace re {
 
@@ -12,6 +13,7 @@ ThreadPool::ThreadPool(int thread_count) {
   for (int i = 0; i < thread_count; ++i) {
     workers_.emplace_back(std::thread([this] { worker_loop(); }));
   }
+  log_info("thread count: {}", workers_.size());
 }
 
 ThreadPool::~ThreadPool() {

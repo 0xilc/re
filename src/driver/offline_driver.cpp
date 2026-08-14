@@ -1,7 +1,7 @@
 #include "driver/offline_driver.h"
 #include <chrono>
 #include <vector>
-#include "accel/brute_accel.h"
+#include "accel/embree_accel.h"
 #include "camera/pinhole.h"
 #include "core/log.h"
 #include "film/film.h"
@@ -11,13 +11,14 @@
 #include "render/cpu/cpu_path_renderer.h"
 #include "scene/scene_builder.h"
 #include "scene/scene_view.h"
+#include "parallel/thread_pool.h"
 
 
 namespace re {
 
 bool run_offline(const OfflineSettings& settings) {
   const Scene scene = make_cornell_scene();
-  BruteAccel accel;
+  EmbreeAccel accel;
   accel.build(scene.geometry());
 
   SceneView scene_view;
@@ -25,13 +26,15 @@ bool run_offline(const OfflineSettings& settings) {
   scene_view.materials = scene.material_table();
   scene_view.material_count = static_cast<int>(scene.materials.size());
 
+  ThreadPool pool = ThreadPool();
+
   const PinholeParams camera = make_pinhole(float3{0.0f, 0.0f, 1.08f},
                                             float3{0.0f, 0.0f, 0.0f},
                                             float3{0.0f, 1.0f, 0.0f},
                                             45.0f, settings.width, settings.height);
   const CpuServices services(accel);
   const CpuPathRenderer path_renderer(
-    scene_view, scene.light_view(), services, PathRenderSettings{16, 8, IntegratorMode::Nee});
+    scene_view, scene.light_view(), services, pool, PathRenderSettings{16, 8, IntegratorMode::Nee});
 
   Film film(settings.width, settings.height);
   const auto t0 = std::chrono::steady_clock::now();
