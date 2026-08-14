@@ -22,6 +22,7 @@ target_link_libraries(re_core PUBLIC
   tomlplusplus
   stb_image
   embree
+  cgltf
 )
 
 add_executable(re main.cpp)
