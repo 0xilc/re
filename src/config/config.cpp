@@ -13,6 +13,7 @@ const char* to_string(Tonemap t) {
     switch (t) {
         case Tonemap::None:     return "none";
         case Tonemap::Reinhard: return "reinhard";
+        case Tonemap::AgX:      return "agx";
     }
     return "?";
 }
@@ -32,6 +33,7 @@ bool read_tonemap(const toml::table& tbl, RenderSettings& settings) {
 
     if      (*name == "none")     settings.tonemap = Tonemap::None;
     else if (*name == "reinhard") settings.tonemap = Tonemap::Reinhard;
+    else if (*name == "agx")      settings.tonemap = Tonemap::AgX;
     else {
         log_error("Unknown tonemap '{}' (expected none, reinhard)", *name);
         return false;

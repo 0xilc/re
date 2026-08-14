@@ -8,7 +8,8 @@ namespace re {
 
 enum class Tonemap : uint8_t {
   None,
-  Reinhard
+  Reinhard,
+  AgX
 };
 
 std::vector<float3> tonemap(const Film& c, Tonemap mapper);
