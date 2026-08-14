@@ -3,12 +3,16 @@
 #include "core/log.h"
 #include "driver/offline_driver.h"
 
-int main() {
-  re::log_info("re, re, raaaw!");
-  re::OfflineSettings driver_settings{
-    .width = 512,
-    .height = 512,
-    .fov_y_deg = 45.0f
-  };
-  return re::run_offline(driver_settings)? 0 : 1;
+int main(int argc, char** argv) {
+    re::log_info("re, re, raaaw!");
+
+    const char* config_path = argc > 1 ? argv[1] : "configs/default.toml";
+
+    const std::optional<re::RenderSettings> loaded = re::load_settings(config_path);
+    if (!loaded) return 1;
+
+    const re::RenderSettings settings = *loaded;
+    re::log_settings(settings);
+
+    return re::run_offline(settings) ? 0 : 1;
 }

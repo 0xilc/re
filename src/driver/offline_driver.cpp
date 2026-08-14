@@ -3,6 +3,7 @@
 #include <vector>
 #include "accel/embree_accel.h"
 #include "camera/pinhole.h"
+#include "config/render_settings.h"
 #include "core/log.h"
 #include "film/film.h"
 #include "film/tonemap.h"
@@ -16,25 +17,26 @@
 
 namespace re {
 
-bool run_offline(const OfflineSettings& settings) {
+bool run_offline(const RenderSettings& settings) {
   const Scene scene = make_cornell_scene();
+
   EmbreeAccel accel;
   accel.build(scene.geometry());
 
   SceneView scene_view;
-  scene_view.geometry = scene.geometry();
-  scene_view.materials = scene.material_table();
+  scene_view.geometry       = scene.geometry();
+  scene_view.materials      = scene.material_table();
   scene_view.material_count = static_cast<int>(scene.materials.size());
 
-  ThreadPool pool = ThreadPool();
-
+  ThreadPool pool = ThreadPool(settings.threads);
+  
   const PinholeParams camera = make_pinhole(float3{0.0f, 0.0f, 1.08f},
                                             float3{0.0f, 0.0f, 0.0f},
                                             float3{0.0f, 1.0f, 0.0f},
                                             45.0f, settings.width, settings.height);
   const CpuServices services(accel);
   const CpuPathRenderer path_renderer(
-    scene_view, scene.light_view(), services, pool, PathRenderSettings{16, 8, IntegratorMode::Nee});
+    scene_view, scene.light_view(), services, pool, settings.path_tracer);
 
   Film film(settings.width, settings.height);
   const auto t0 = std::chrono::steady_clock::now();

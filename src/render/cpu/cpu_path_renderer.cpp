@@ -9,7 +9,7 @@ namespace re {
 void CpuPathRenderer::render(const PinholeParams& camera, Film& film) const {
   const int width = film.width();
   const int height = film.height();
-  const int spp = settings_.samples_per_pixel;
+  const int spp = settings_.spp;
   const float inv_spp = 1.0f / static_cast<float>(spp);
 
   parallel_tiles(*pool_, width, height, [&](const Tile& tile) {
@@ -21,7 +21,7 @@ void CpuPathRenderer::render(const PinholeParams& camera, Film& film) const {
           Sampler sampler(x, y, s);
           const Ray ray = generate_ray(camera, x, y, sampler.next_2d());
 
-          switch (settings_.mode) {
+          switch (settings_.integrator) {
             case IntegratorMode::Naive:
               sum = sum + li_naive(ray, scene_, services_, sampler, settings_.max_depth);
               break;
