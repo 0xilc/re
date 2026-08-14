@@ -6,10 +6,9 @@
 #include "scene/scene_view.h"
 #include "light/light_view.h"
 #include "parallel/thread_pool.h"
+#include "integrator/integrator.h"
 
 namespace re {
-
-enum class IntegratorMode { Naive, Nee, Mis };
 
 struct PathRenderSettings {
   int samples_per_pixel   = 64;

@@ -6,6 +6,19 @@
 
 namespace re {
 
+namespace {
+
+bool read_render_tonemap(toml::table& tbl, RenderSettings& settings) {
+  if (const auto name = tbl["render"]["tonemap"].value<std::string>()) {
+    if      (*name == "none")     settings.tonemap = Tonemap::None;
+    else if (*name == "reinhard") settings.tonemap = Tonemap::Reinhard;
+    else { log_error("Unknown tonemap '{}'", *name); return false; }
+  }
+
+  return true;
+}
+}
+
 std::optional<RenderSettings> load_settings(const std::string& path) {
   toml::table tbl;
   try {
@@ -20,11 +33,13 @@ std::optional<RenderSettings> load_settings(const std::string& path) {
   settings.height    = tbl["render"]["height"].value_or(settings.height);
   settings.spp       = tbl["render"]["spp"].value_or(settings.spp);
   settings.max_depth = tbl["render"]["max_depth"].value_or(settings.max_depth);
-
+  bool ok = true;
+  ok &= read_render_tonemap(tbl, settings);
+  
   settings.scene_path  = tbl["scene"]["file"].value_or(settings.scene_path);
   settings.output_path = tbl["output"]["file"].value_or(settings.output_path);
 
-  bool ok = true;
+  
   if (settings.width <= 0 || settings.height <= 0) {
     log_error("Invalid resolution: {}x{}", settings.width, settings.height);
     ok = false;

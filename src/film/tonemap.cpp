@@ -5,6 +5,24 @@
 
 namespace re {
 
+float3 tonemap_reinhard(const float3& c) {
+  return float3{
+    c.x / (1.0f + c.x),
+    c.y / (1.0f + c.y),
+    c.z / (1.0f + c.z)
+  };
+}
+
+float3 tonemap(const float3& c, Tonemap mapper) {
+  switch (mapper) {
+    case Tonemap::None:
+      return c;
+    case Tonemap::Reinhard:
+      return tonemap_reinhard(c);
+  }
+  return c;
+}
+
 float linear_to_srgb(float linear) {
   linear = clamp(linear, 0.0f, 1.0f);
   return linear <= 0.0031308f ? 12.92f * linear

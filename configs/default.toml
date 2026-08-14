@@ -3,6 +3,7 @@ width     = 801
 height    = 600
 spp       = 16
 max_depth = 8
+tonemap = "none"
 
 [scene]
 file = ""
