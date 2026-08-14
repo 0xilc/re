@@ -11,10 +11,5 @@ enum class Tonemap : uint8_t {
   Reinhard
 };
 
-float3 tonemap(const float3& c, Tonemap mapper);
-
-float linear_to_srgb(float linear);
-
-std::vector<uint8_t> encode_srgb8(const Film& film);
-
+std::vector<float3> tonemap(const Film& c, Tonemap mapper);
 }

@@ -1,8 +1,8 @@
 [render]
-width   = 1000
-height  = 1000
+width   = 400
+height  = 400
 threads = 0
-tonemap = "none"
+tonemap = "reinhard"
 
 [path_tracer]
 spp       = 64
