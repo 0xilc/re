@@ -83,4 +83,11 @@ RE_HD inline Transform compose(const Transform& a, const Transform& b) {
   return c;
 }
 
+RE_HD inline bool is_mirrored(const Transform& t) {
+    const float3 r0 = t.r[0].xyz;
+    const float3 r1 = t.r[1].xyz;
+    const float3 r2 = t.r[2].xyz;
+    return dot(r0, cross(r1, r2)) < 0.0f;
+}
+
 }

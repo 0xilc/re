@@ -14,11 +14,22 @@
 #include "render/cpu/cpu_path_renderer.h"
 #include "scene/scene_builder.h"
 #include "scene/scene_view.h"
+#include "io/gltf_loader.h"
 
 namespace re {
 
 bool run_offline(const RenderSettings& settings) {
-    const Scene scene = make_cornell_scene();
+    Scene scene;
+    if (!load_gltf("data/DamagedHelmet.glb", scene)) {
+      log_error("driver: could not load scene");
+      return false;
+    }
+    
+    const uint16_t lamp = scene.add_material(
+        make_material({0.0f, 0.0f, 0.0f}, 0.0f, 1.0f, {30.0f, 30.0f, 30.0f}));
+    scene.add_quad({-1, 3, -1}, {1, 3, -1}, {1, 3, 1}, {-1, 3, 1}, lamp);
+
+    scene.finalize();
 
     EmbreeAccel accel;
     accel.build(scene.geometry());
@@ -32,7 +43,7 @@ bool run_offline(const RenderSettings& settings) {
     log_info("using {} threads", pool.thead_count());
 
     const PinholeParams camera =
-        make_pinhole(float3{0.0f, 0.0f, 1.08f},
+        make_pinhole(float3{0.0f, 0.0f, 3.08f},
                      float3{0.0f, 0.0f, 0.0f},
                      float3{0.0f, 1.0f, 0.0f},
                      45.0f, settings.width, settings.height);

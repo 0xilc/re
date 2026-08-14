@@ -6,6 +6,7 @@ add_library(re_core
   film/film.cpp
   film/tonemap.cpp
   io/image_io.cpp
+  io/gltf_loader.cpp
   render/cpu/cpu_debug_renderer.cpp
   render/cpu/cpu_path_renderer.cpp
   driver/offline_driver.cpp
