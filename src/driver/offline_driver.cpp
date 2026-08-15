@@ -12,6 +12,7 @@
 #include "io/image_io.h"
 #include "parallel/thread_pool.h"
 #include "render/cpu/cpu_path_renderer.h"
+#include "render/cpu/cpu_debug_renderer.h"
 #include "scene/scene_builder.h"
 #include "scene/scene_view.h"
 #include "io/gltf_loader.h"
@@ -49,13 +50,13 @@ bool run_offline(const RenderSettings& settings) {
                      45.0f, settings.width, settings.height);
 
     const CpuServices     services(accel);
-    const CpuPathRenderer path_renderer(scene_view, scene.light_view(), services, pool,
-                                        settings.path_tracer);
-
+    // const CpuPathRenderer path_renderer(scene_view, scene.light_view(), services, pool,
+    //                                     settings.path_tracer);
+    const CpuDebugRenderer debug_renderer(scene_view.geometry, accel, DebugMode::Normals, pool);
     Film film(settings.width, settings.height);
 
     const auto t0 = std::chrono::steady_clock::now();
-    path_renderer.render(camera, film);
+    debug_renderer.render(camera, film);
     const auto t1 = std::chrono::steady_clock::now();
 
     log_info("Rendered {}x{} in {:.3f} seconds.", settings.width, settings.height,
