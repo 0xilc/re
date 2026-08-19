@@ -11,6 +11,7 @@ add_library(re_core
   render/cpu/cpu_path_renderer.cpp
   driver/offline_driver.cpp
   scene/scene_builder.cpp
+  scene/mesh.cpp
   light/light_picker_build.cpp
   parallel/thread_pool.cpp
   parallel/scheduler.cpp

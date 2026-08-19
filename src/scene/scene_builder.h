@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "scene/mesh.h"
+#include "scene/mesh_view.h"
 #include "scene/material.h"
 #include "light/light_view.h"
 
