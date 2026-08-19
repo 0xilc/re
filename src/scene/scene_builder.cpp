@@ -1,8 +1,15 @@
 #include "scene/scene_builder.h"
+
+#include <utility>
+
 #include "scene/material.h"
-#include "light/light_picker_build.h"
 
 namespace re {
+
+uint32_t Scene::add_mesh(Mesh mesh) {
+  meshes.push_back(std::move(mesh));
+  return static_cast<uint32_t>(meshes.size() - 1);
+}
 
 uint16_t Scene::add_material(const Material& material) {
   materials.push_back(material);
@@ -11,16 +18,21 @@ uint16_t Scene::add_material(const Material& material) {
 
 void Scene::add_quad(const float3& p0, const float3& p1, const float3& p2, const float3& p3,
                      uint16_t material_id) {
-  const uint32_t base = static_cast<uint32_t>(positions.size());
+  std::vector<float3> positions;
   positions.push_back(p0);
   positions.push_back(p1);
   positions.push_back(p2);
   positions.push_back(p3);
+  std::vector<uint32_t> indices = {
+    0, 1, 2, 0, 2, 3
+  };
+  std::vector<uint16_t> mat_ids = {material_id, material_id};
+  Mesh quad;
+  quad.positions = positions;
+  quad.indices = indices;
+  quad.mat_ids = mat_ids;
 
-  const uint32_t tri[] = {base + 0, base + 1, base + 2, base + 0, base + 2, base + 3};
-  for (uint32_t i : tri) indices.push_back(i);
-  mat_ids.push_back(material_id);
-  mat_ids.push_back(material_id);
+  add_mesh(quad);
 }
 
 void Scene::add_box(const float3& lo, const float3& hi, uint16_t material_id) {
@@ -39,21 +51,21 @@ void Scene::add_box(const float3& lo, const float3& hi, uint16_t material_id) {
 }
 
 void Scene::finalize() {
-  emissive_prims.clear();
+  // emissive_prims.clear();
 
-  const int triangle_count = static_cast<int>(indices.size() / 3);
-  for (int prim = 0; prim < triangle_count; ++prim) {
-    if (materials[mat_ids[static_cast<size_t>(prim)]].is_emissive()) {
-      emissive_prims.push_back(prim);
-    }
-  }
+  // const int triangle_count = static_cast<int>(indices.size() / 3);
+  // for (int prim = 0; prim < triangle_count; ++prim) {
+  //   if (materials[mat_ids[static_cast<size_t>(prim)]].is_emissive()) {
+  //     emissive_prims.push_back(prim);
+  //   }
+  // }
 
-  prim_to_light.assign(static_cast<size_t>(triangle_count), -1);
-  for (size_t i = 0; i < emissive_prims.size(); ++i) {
-    prim_to_light[static_cast<size_t>(emissive_prims[i])] = static_cast<int>(i);
-  }
+  // prim_to_light.assign(static_cast<size_t>(triangle_count), -1);
+  // for (size_t i = 0; i < emissive_prims.size(); ++i) {
+  //   prim_to_light[static_cast<size_t>(emissive_prims[i])] = static_cast<int>(i);
+  // }
 
-  light_cdf = build_light_cdf(geometry(), material_table(), emissive_prims);
+  // light_cdf = build_light_cdf(geometry(), material_table(), emissive_prims);
 }
 
 Scene make_cornell_scene() {

@@ -2,6 +2,7 @@
 
 #include <cgltf.h>
 #include <cstring>
+#include <utility>
 #include <vector>
 
 #include "core/log.h"
@@ -55,17 +56,17 @@ const cgltf_accessor* find_attribute(const cgltf_primitive& prim, cgltf_attribut
   return nullptr;
 }
 
-void add_primitive(const cgltf_primitive& prim, const Transform& world, uint16_t material_id, Scene& scene) { 
+void add_primitive(const cgltf_primitive& prim, const Transform& world, uint16_t material_id, Scene& scene) {
   if (prim.type != cgltf_primitive_type_triangles) return;
-  
-  std::vector<float3> positions;
-  if (!read_positions(find_attribute(prim, cgltf_attribute_type_position), positions)) {
+
+  Mesh mesh;
+  if (!read_positions(find_attribute(prim, cgltf_attribute_type_position), mesh.positions)) {
     log_error("gltf: primitive has no readable POSITION attribute");
     return;
   }
 
   std::vector<uint32_t> indices;
-  if (!read_indices(prim, positions.size(), indices)) {
+  if (!read_indices(prim, mesh.positions.size(), indices)) {
     log_error("gltf: could not read indices");
     return;
   }
@@ -73,17 +74,20 @@ void add_primitive(const cgltf_primitive& prim, const Transform& world, uint16_t
     log_error("gltf: index count {} is not a multiple of three", indices.size());
     return;
   }
+  if (indices.empty()) return;
 
-  const uint32_t base = static_cast<uint32_t>(scene.positions.size());
-  for (const float3& p : positions) scene.positions.push_back(transform_point(world, p));
+  for (float3& p : mesh.positions) p = transform_point(world, p);
 
   const bool flip = is_mirrored(world);
+  mesh.indices.reserve(indices.size());
+  mesh.mat_ids.assign(indices.size() / 3, material_id);
   for (size_t i = 0; i + 2 < indices.size(); i += 3) {
-    scene.indices.push_back(base + indices[i]);
-    scene.indices.push_back(base + indices[i + (flip ? 2 : 1)]);
-    scene.indices.push_back(base + indices[i + (flip ? 1 : 2)]);
-    scene.mat_ids.push_back(material_id);
+    mesh.indices.push_back(indices[i]);
+    mesh.indices.push_back(indices[i + (flip ? 2 : 1)]);
+    mesh.indices.push_back(indices[i + (flip ? 1 : 2)]);
   }
+
+  scene.add_mesh(std::move(mesh));
 }
 } // namespace
 
@@ -111,8 +115,8 @@ bool load_gltf(const std::string& path, Scene& scene) {
   // For now, a placeholder material
   const uint16_t placeholder = scene.add_material(make_material({0.75f, 0.75f, 0.75f}, 0.0f, 0.9f));
   
-  const size_t triangles_before = scene.indices.size() / 3;
-  
+  const size_t meshes_before = scene.meshes.size();
+
   for (size_t i = 0; i < data->nodes_count; ++i) {
     const cgltf_node& node = data->nodes[i];
     if (node.mesh == nullptr) continue;
@@ -126,11 +130,19 @@ bool load_gltf(const std::string& path, Scene& scene) {
     }
   }
 
-  const size_t triangles_added = scene.indices.size() / 3 - triangles_before;
-  log_info("gltf: loaded {} ({} triangles, {} vertices)", path, triangles_added, scene.positions.size());
+  const size_t meshes_added = scene.meshes.size() - meshes_before;
+  size_t triangles_added = 0;
+  size_t vertices_added  = 0;
+  for (size_t i = meshes_before; i < scene.meshes.size(); ++i) {
+    triangles_added += scene.meshes[i].mat_ids.size();
+    vertices_added  += scene.meshes[i].positions.size();
+  }
+
+  log_info("gltf: loaded {} ({} meshes, {} triangles, {} vertices)", path, meshes_added,
+           triangles_added, vertices_added);
 
   cgltf_free(data);
-  return triangles_added > 0;
+  return meshes_added > 0;
 }
 
 } // namespace re

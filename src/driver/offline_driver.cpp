@@ -21,7 +21,7 @@ namespace re {
 
 bool run_offline(const RenderSettings& settings) {
     Scene scene;
-    if (!load_gltf("data/DamagedHelmet.glb", scene)) {
+    if (!load_gltf("data/SimpleInstancing.glb", scene)) {
       log_error("driver: could not load scene");
       return false;
     }
@@ -44,7 +44,7 @@ bool run_offline(const RenderSettings& settings) {
     log_info("using {} threads", pool.thead_count());
 
     const PinholeParams camera =
-        make_pinhole(float3{0.0f, 0.0f, 3.08f},
+        make_pinhole(float3{0.0f, 0.0f, 7.08f},
                      float3{0.0f, 0.0f, 0.0f},
                      float3{0.0f, 1.0f, 0.0f},
                      45.0f, settings.width, settings.height);

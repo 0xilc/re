@@ -48,10 +48,11 @@ std::vector<re::Ray> make_test_rays(const re::Scene& scene, int count) {
             ray.dir    = re::float3{r * std::cos(phi), r * std::sin(phi), z};
             rays.push_back(ray);
         } else {
+            const re::MeshView geometry = scene.geometry();
             const int prim =
-                static_cast<int>(sampler.next_1d() * static_cast<float>(scene.mat_ids.size()));
+                static_cast<int>(sampler.next_1d() * static_cast<float>(geometry.triangle_count));
             const re::Triangle tri =
-                re::get_triangle(scene.geometry(), std::min(prim, static_cast<int>(scene.mat_ids.size()) - 1));
+                re::get_triangle(geometry, std::min(prim, geometry.triangle_count - 1));
 
             const re::float2 bary = re::sample_uniform_triangle(sampler.next_2d());
             const re::float3 target = tri.get_point(bary.x, bary.y);

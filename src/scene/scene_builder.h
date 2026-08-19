@@ -3,28 +3,21 @@
 #include <cstdint>
 #include <vector>
 
+#include "scene/mesh.h"
 #include "scene/mesh_view.h"
 #include "scene/material.h"
 #include "light/light_view.h"
 
 namespace re {
 struct Scene {
-  std::vector<float3> positions;
-  std::vector<uint32_t> indices;   // 3 per triangle
-  std::vector<uint16_t> mat_ids;   // 1 per triangle
+  std::vector<Mesh> meshes;
   std::vector<Material> materials;
   std::vector<float> light_cdf;
   std::vector<int> emissive_prims;
   std::vector<int> prim_to_light;
 
   MeshView geometry() const {
-    MeshView g;
-    g.positions      = positions.data();
-    g.indices        = indices.data();
-    g.mat_ids        = mat_ids.data();
-    g.vertex_count   = static_cast<int>(positions.size());
-    g.triangle_count = static_cast<int>(indices.size() / 3);
-    return g;
+    return make_meshview(meshes[0]);
   }
 
   LightView light_view() const {
@@ -38,6 +31,8 @@ struct Scene {
   }
 
   const Material* material_table() const { return materials.data(); }
+
+  uint32_t add_mesh(Mesh mesh);
 
   uint16_t add_material(const Material& material);
 
