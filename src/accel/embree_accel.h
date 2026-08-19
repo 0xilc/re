@@ -1,4 +1,6 @@
 #pragma once
+#include <vector>
+
 #include "accel/accel.h"
 
 namespace re {
@@ -16,10 +18,12 @@ public:
   bool occluded(const Ray& ray) const override;
 
 private:
+  void release_scenes();
+
   void* device_ = nullptr;
   void* scene_  = nullptr;
 
-  int triangle_count_ = 0;
+  std::vector<void*> mesh_scenes_;
 };
 
 }

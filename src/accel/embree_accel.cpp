@@ -34,6 +34,29 @@ RTCRayHit make_rayhit(const Ray& ray) {
   rh.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
   return rh;
 }
+
+static_assert(sizeof(Transform) == 12 * sizeof(float),
+              "Transform must stay a packed 3x4 row major matrix for embree");
+
+RTCScene build_mesh_scene(RTCDevice device, const MeshView& mesh) {
+  RTCScene    scene = rtcNewScene(device);
+  RTCGeometry geom  = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_TRIANGLE);
+
+  rtcSetSharedGeometryBuffer(geom, RTC_BUFFER_TYPE_VERTEX, 0, RTC_FORMAT_FLOAT3,
+                             mesh.positions, 0, sizeof(float3),
+                             static_cast<size_t>(mesh.vertex_count));
+
+  rtcSetSharedGeometryBuffer(geom, RTC_BUFFER_TYPE_INDEX, 0, RTC_FORMAT_UINT3,
+                             mesh.indices, 0, 3 * sizeof(uint32_t),
+                             static_cast<size_t>(mesh.triangle_count));
+
+  rtcCommitGeometry(geom);
+  rtcAttachGeometry(scene, geom);
+  rtcReleaseGeometry(geom);
+  rtcCommitScene(scene);
+
+  return scene;
+}
 } // namespace
 
 EmbreeAccel::EmbreeAccel() {
@@ -43,37 +66,49 @@ EmbreeAccel::EmbreeAccel() {
 }
 
 EmbreeAccel::~EmbreeAccel() {
-  if (scene_ != nullptr) rtcReleaseScene(static_cast<RTCScene>(scene_));
+  release_scenes();
   if (device_ != nullptr) rtcReleaseDevice(static_cast<RTCDevice>(device_));
 }
 
-void EmbreeAccel::build(const MeshView& geometry) {
+void EmbreeAccel::release_scenes() {
+  if (scene_ != nullptr) {
+    rtcReleaseScene(static_cast<RTCScene>(scene_));
+    scene_ = nullptr;
+  }
+
+  for (void* mesh_scene : mesh_scenes_) rtcReleaseScene(static_cast<RTCScene>(mesh_scene));
+  mesh_scenes_.clear();
+}
+
+void EmbreeAccel::build(const SceneGeometryView& geometry) {
   RTCDevice device = static_cast<RTCDevice>(device_);
 
-  if (scene_ != nullptr) rtcReleaseScene(static_cast<RTCScene>(scene_));
+  release_scenes();
 
-  RTCScene    scene = rtcNewScene(device);
-  RTCGeometry  mesh = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_TRIANGLE);
+  mesh_scenes_.reserve(geometry.mesh_count);
+  for (size_t mesh_id = 0; mesh_id < geometry.mesh_count; ++mesh_id) {
+    mesh_scenes_.push_back(build_mesh_scene(device, geometry.meshes[mesh_id]));
+  }
 
-  rtcSetSharedGeometryBuffer(mesh, RTC_BUFFER_TYPE_VERTEX, 0, RTC_FORMAT_FLOAT3,
-                            geometry.positions, 0, sizeof(float3),
-                            static_cast<size_t>(geometry.vertex_count));
+  RTCScene scene = rtcNewScene(device);
 
-  rtcSetSharedGeometryBuffer(mesh, RTC_BUFFER_TYPE_INDEX, 0, RTC_FORMAT_UINT3,
-                            geometry.indices, 0, 3 * sizeof(uint32_t),
-                            static_cast<size_t>(geometry.triangle_count));
-  
-  rtcCommitGeometry(mesh);
+  for (size_t inst_id = 0; inst_id < geometry.instance_count; ++inst_id) {
+    const Instance& inst   = geometry.instances[inst_id];
+    const size_t    mesh_id = static_cast<size_t>(inst.mesh_id);
+    assert(inst.mesh_id >= 0 && mesh_id < geometry.mesh_count);
 
-  const unsigned geom_id = rtcAttachGeometry(scene, mesh);
-  assert(geom_id == 0);
-  (void)geom_id;
-  rtcReleaseGeometry(mesh);
-  
+    RTCGeometry geom = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_INSTANCE);
+    rtcSetGeometryInstancedScene(geom, static_cast<RTCScene>(mesh_scenes_[mesh_id]));
+    rtcSetGeometryTransform(geom, 0, RTC_FORMAT_FLOAT3X4_ROW_MAJOR, &inst.to_world);
+    rtcCommitGeometry(geom);
+
+    rtcAttachGeometryByID(scene, geom, static_cast<unsigned>(inst_id));
+    rtcReleaseGeometry(geom);
+  }
+
   rtcCommitScene(scene);
 
-  scene_          = scene;
-  triangle_count_ = geometry.triangle_count;
+  scene_ = scene;
 }
 
 Hit EmbreeAccel::intersect(const Ray& ray) const {
@@ -82,13 +117,14 @@ Hit EmbreeAccel::intersect(const Ray& ray) const {
   RTCRayHit rh = make_rayhit(ray);
   rtcIntersect1(static_cast<RTCScene>(scene_), &rh, nullptr);
 
-  if (rh.hit.geomID == RTC_INVALID_GEOMETRY_ID) return hit;
+  if (rh.hit.instID[0] == RTC_INVALID_GEOMETRY_ID) return hit;
 
   hit.t = rh.ray.tfar;
   hit.u = rh.hit.u;
   hit.v = rh.hit.v;
+
   hit.primitive_id = static_cast<int>(rh.hit.primID);
-  hit.instance_id = 0;
+  hit.instance_id  = static_cast<int>(rh.hit.instID[0]);
 
   return hit;
 }

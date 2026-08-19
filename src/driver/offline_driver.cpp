@@ -3,7 +3,7 @@
 #include <chrono>
 #include <vector>
 
-#include "accel/brute_accel.h"
+#include "accel/embree_accel.h"
 #include "camera/pinhole.h"
 #include "config/render_settings.h"
 #include "core/log.h"
@@ -34,7 +34,7 @@ bool run_offline(const RenderSettings& settings) {
     scene.finalize();
 
     SceneGeometryView scene_geometry = scene.make_geometry_view();
-    BruteAccel accel;
+    EmbreeAccel accel;
     accel.build(scene_geometry);
 
     SceneView scene_view;
