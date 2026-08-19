@@ -73,7 +73,7 @@ std::vector<re::Ray> make_test_rays(const re::Scene& scene, int count) {
 
 TEST_CASE("accel agreement: embree matches the brute-force oracle") {
     const re::Scene        scene    = re::make_cornell_scene();
-    const re::GeometryView geometry = scene.geometry();
+    const re::MeshView geometry = scene.geometry();
 
     re::BruteAccel  brute;
     re::EmbreeAccel embree;
@@ -120,7 +120,7 @@ TEST_CASE("accel agreement: embree matches the brute-force oracle") {
 
 TEST_CASE("accel agreement: occluded matches between backends") {
     const re::Scene        scene    = re::make_cornell_scene();
-    const re::GeometryView geometry = scene.geometry();
+    const re::MeshView geometry = scene.geometry();
 
     re::BruteAccel  brute;
     re::EmbreeAccel embree;

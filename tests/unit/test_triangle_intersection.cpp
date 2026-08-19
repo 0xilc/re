@@ -1,7 +1,7 @@
 #include "doctest.h"
 #include <cmath>
 #include "core/ray.h"
-#include "scene/geometry.h"
+#include "scene/mesh.h"
 #include "accel/intersect_triangle.h"
 
 using namespace re;

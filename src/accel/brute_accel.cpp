@@ -3,7 +3,7 @@
 
 namespace re {
 
-void BruteAccel::build(const GeometryView& mesh) {
+void BruteAccel::build(const MeshView& mesh) {
   mesh_ = mesh;
 }
 

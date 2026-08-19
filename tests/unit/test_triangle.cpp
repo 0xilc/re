@@ -5,7 +5,7 @@
 #include "accel/intersect_triangle.h"
 #include "core/hit.h"
 #include "core/ray.h"
-#include "scene/geometry.h"
+#include "scene/mesh.h"
 
 namespace {
 
@@ -125,7 +125,7 @@ TEST_CASE("BruteAccel: nearest hit wins and misses are encoded in primitive_id")
     };
     const uint32_t indices[] = {0, 1, 2, 3, 4, 5};
 
-    re::GeometryView geometry;
+    re::MeshView geometry;
     geometry.positions      = positions;
     geometry.indices        = indices;
     geometry.vertex_count   = 6;

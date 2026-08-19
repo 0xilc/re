@@ -1,13 +1,13 @@
 #pragma once
 
 #include "core/platform.h"
-#include "scene/geometry.h"
+#include "scene/mesh.h"
 #include "scene/material.h"
 
 namespace re {
 
 struct SceneView {
-  GeometryView      geometry;
+  MeshView      geometry;
   const Material*   materials = nullptr;
   int               material_count = 0;
 

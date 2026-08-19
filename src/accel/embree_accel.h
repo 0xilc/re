@@ -11,7 +11,7 @@ public:
   EmbreeAccel(const EmbreeAccel&)             = delete;
   EmbreeAccel& operator=(const EmbreeAccel&)  = delete;
 
-  void build(const GeometryView& geometry) override;
+  void build(const MeshView& geometry) override;
   Hit intersect(const Ray& ray) const override;
   bool occluded(const Ray& ray) const override;
 

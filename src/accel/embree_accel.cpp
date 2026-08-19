@@ -47,7 +47,7 @@ EmbreeAccel::~EmbreeAccel() {
   if (device_ != nullptr) rtcReleaseDevice(static_cast<RTCDevice>(device_));
 }
 
-void EmbreeAccel::build(const GeometryView& geometry) {
+void EmbreeAccel::build(const MeshView& geometry) {
   RTCDevice device = static_cast<RTCDevice>(device_);
 
   if (scene_ != nullptr) rtcReleaseScene(static_cast<RTCScene>(scene_));

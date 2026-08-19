@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "scene/geometry.h"
+#include "scene/mesh.h"
 #include "scene/material.h"
 #include "light/light_view.h"
 
@@ -17,8 +17,8 @@ struct Scene {
   std::vector<int> emissive_prims;
   std::vector<int> prim_to_light;
 
-  GeometryView geometry() const {
-    GeometryView g;
+  MeshView geometry() const {
+    MeshView g;
     g.positions      = positions.data();
     g.indices        = indices.data();
     g.mat_ids        = mat_ids.data();
