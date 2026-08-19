@@ -7,7 +7,7 @@
 namespace re {
 
 struct SceneView {
-  MeshView      geometry;
+  MeshView          geometry;
   const Material*   materials = nullptr;
   int               material_count = 0;
 

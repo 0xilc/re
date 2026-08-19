@@ -11,6 +11,15 @@ uint32_t Scene::add_mesh(Mesh mesh) {
   return static_cast<uint32_t>(meshes.size() - 1);
 }
 
+uint32_t Scene::add_instance(Transform to_world, uint32_t mesh_id) {
+  assert(mesh_id < meshes.size());
+
+  Instance inst = make_instance(to_world, mesh_id);
+  instances.push_back(std::move(inst));
+  
+  return static_cast<uint32_t>(instances.size() - 1);
+}
+
 uint16_t Scene::add_material(const Material& material) {
   materials.push_back(material);
   return static_cast<uint16_t>(materials.size() - 1);
@@ -32,7 +41,8 @@ void Scene::add_quad(const float3& p0, const float3& p1, const float3& p2, const
   quad.indices = indices;
   quad.mat_ids = mat_ids;
 
-  add_mesh(quad);
+  uint32_t mesh_id = add_mesh(quad);
+  add_instance(transform_identity(), mesh_id);
 }
 
 void Scene::add_box(const float3& lo, const float3& hi, uint16_t material_id) {

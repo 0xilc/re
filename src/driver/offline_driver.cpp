@@ -21,10 +21,11 @@ namespace re {
 
 bool run_offline(const RenderSettings& settings) {
     Scene scene;
-    if (!load_gltf("data/SimpleInstancing.glb", scene)) {
-      log_error("driver: could not load scene");
-      return false;
-    }
+    // if (!load_gltf("data/SimpleInstancing.glb", scene)) {
+    //   log_error("driver: could not load scene");
+    //   return false;
+    // }
+    scene = make_cornell_scene();
     
     const uint16_t lamp = scene.add_material(
         make_material({0.0f, 0.0f, 0.0f}, 0.0f, 1.0f, {30.0f, 30.0f, 30.0f}));

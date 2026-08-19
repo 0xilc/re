@@ -6,11 +6,13 @@
 #include "scene/mesh.h"
 #include "scene/mesh_view.h"
 #include "scene/material.h"
+#include "scene/instance.h"
 #include "light/light_view.h"
 
 namespace re {
 struct Scene {
   std::vector<Mesh> meshes;
+  std::vector<Instance> instances;
   std::vector<Material> materials;
   std::vector<float> light_cdf;
   std::vector<int> emissive_prims;
@@ -33,6 +35,8 @@ struct Scene {
   const Material* material_table() const { return materials.data(); }
 
   uint32_t add_mesh(Mesh mesh);
+  
+  uint32_t add_instance(Transform to_world, uint32_t mesh_id);
 
   uint16_t add_material(const Material& material);
 
