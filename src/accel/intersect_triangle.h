@@ -4,7 +4,7 @@
 #include "core/types.h"
 #include "core/math.h"
 #include "core/ray.h"
-#include "scene/mesh.h"
+#include "scene/triangle.h"
 
 namespace re {
 

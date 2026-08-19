@@ -3,11 +3,14 @@
 #include <utility>
 
 #include "scene/material.h"
+#include "scene/scene_view.h"
 
 namespace re {
 
 uint32_t Scene::add_mesh(Mesh mesh) {
   meshes.push_back(std::move(mesh));
+  mesh_views.push_back(make_meshview(meshes.back()));
+
   return static_cast<uint32_t>(meshes.size() - 1);
 }
 
@@ -77,6 +80,16 @@ void Scene::finalize() {
 
   // light_cdf = build_light_cdf(geometry(), material_table(), emissive_prims);
 }
+
+SceneGeometryView Scene::make_geometry_view() const {
+  SceneGeometryView view;
+  view.meshes = mesh_views.data();
+  view.instances = instances.data();
+  view.mesh_count = mesh_views.size();
+  view.instance_count = instances.size();
+  
+  return view;
+} 
 
 Scene make_cornell_scene() {
   Scene scene;

@@ -5,6 +5,7 @@
 #include "core/spectrum.h"
 #include "material/bsdf.h"
 #include "material/material_factory.h"
+#include "parallel/scheduler.h"
 
 
 namespace re {
@@ -25,9 +26,9 @@ namespace {
     return normalize(cross(tri.v1 - tri.v0, tri.v2 - tri.v0));
   }
 
-  Spectrum shade_lambert(const Triangle& tri, const Ray& ray)
+  Spectrum shade_lambert(const float3& normal, const Ray& ray)
   {
-    float3 n = geometric_normal(tri);
+    float3 n = normal;
 
     const float3 wo = -ray.dir;
     if (dot(n, wo) < 0.0f) n = -n;
@@ -43,7 +44,6 @@ namespace {
     return f * kLightRadiance * cos_i;
   }
 } // namespace
-
 
 void CpuDebugRenderer::render(const PinholeParams &camera, Film &film) const
 {
@@ -63,16 +63,21 @@ void CpuDebugRenderer::render(const PinholeParams &camera, Film &film) const
           continue;
         }
 
-        const Triangle tri = get_triangle(geometry_, hit.primitive_id);
+        const Instance& inst = geometry_.instances[hit.instance_id];
+        const MeshView  mesh = geometry_.meshes[inst.mesh_id];
+
+        const Triangle tri = get_triangle(mesh, hit.primitive_id);
+
+        const float3 ng = transform_normal(inst.to_local, geometric_normal(tri));
 
         Spectrum color;
         switch (mode_)
         {
           case DebugMode::Normals:
-            color = geometric_normal(tri) * 0.5f + 0.5f;
+            color = ng * 0.5f + 0.5f;
             break;
           case DebugMode::Lambert:
-            color = shade_lambert(tri, ray);
+            color = shade_lambert(ng, ray);
             break;
         }
 

@@ -8,10 +8,12 @@
 #include "scene/material.h"
 #include "scene/instance.h"
 #include "light/light_view.h"
+#include "scene/scene_view.h"
 
 namespace re {
 struct Scene {
   std::vector<Mesh> meshes;
+  std::vector<MeshView> mesh_views;
   std::vector<Instance> instances;
   std::vector<Material> materials;
   std::vector<float> light_cdf;
@@ -46,6 +48,8 @@ struct Scene {
   void add_box(const float3& lo, const float3& hi, uint16_t material_id);
 
   void finalize();
+
+  SceneGeometryView make_geometry_view() const;
 };
 
 Scene make_cornell_scene();

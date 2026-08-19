@@ -3,7 +3,7 @@
 #include <chrono>
 #include <vector>
 
-#include "accel/embree_accel.h"
+#include "accel/brute_accel.h"
 #include "camera/pinhole.h"
 #include "config/render_settings.h"
 #include "core/log.h"
@@ -33,8 +33,9 @@ bool run_offline(const RenderSettings& settings) {
 
     scene.finalize();
 
-    EmbreeAccel accel;
-    accel.build(scene.geometry());
+    SceneGeometryView scene_geometry = scene.make_geometry_view();
+    BruteAccel accel;
+    accel.build(scene_geometry);
 
     SceneView scene_view;
     scene_view.geometry       = scene.geometry();
@@ -45,7 +46,7 @@ bool run_offline(const RenderSettings& settings) {
     log_info("using {} threads", pool.thead_count());
 
     const PinholeParams camera =
-        make_pinhole(float3{0.0f, 0.0f, 7.08f},
+        make_pinhole(float3{0.0f, 0.0f, 1.08f},
                      float3{0.0f, 0.0f, 0.0f},
                      float3{0.0f, 1.0f, 0.0f},
                      45.0f, settings.width, settings.height);
@@ -53,7 +54,7 @@ bool run_offline(const RenderSettings& settings) {
     const CpuServices     services(accel);
     // const CpuPathRenderer path_renderer(scene_view, scene.light_view(), services, pool,
     //                                     settings.path_tracer);
-    const CpuDebugRenderer debug_renderer(scene_view.geometry, accel, DebugMode::Normals, pool);
+    const CpuDebugRenderer debug_renderer(scene_geometry, accel, DebugMode::Normals, pool);
     Film film(settings.width, settings.height);
 
     const auto t0 = std::chrono::steady_clock::now();
