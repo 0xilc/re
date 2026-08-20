@@ -7,7 +7,6 @@
 #include "scene/mesh_view.h"
 #include "scene/material.h"
 #include "scene/instance.h"
-#include "light/cdf_light_selector.h"
 #include "scene/scene_view.h"
 
 namespace re {
@@ -16,17 +15,6 @@ struct Scene {
   std::vector<MeshView> mesh_views;
   std::vector<Instance> instances;
   std::vector<Material> materials;
-  std::vector<float> light_cdf;
-  std::vector<LightRef> emissive_prims;
-
-  CdfLightSelector light_view() const {
-    CdfLightSelector l;
-    l.refs = emissive_prims.data();
-    l.cdf = light_cdf.data();
-    l.count = static_cast<int>(emissive_prims.size());
-
-    return l;
-  }
 
   const Material* material_table() const { return materials.data(); }
 
@@ -40,8 +28,6 @@ struct Scene {
                 uint16_t material_id);
 
   void add_box(const float3& lo, const float3& hi, uint16_t material_id);
-
-  void finalize();
 
   SceneGeometryView make_geometry_view() const;
 };

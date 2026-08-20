@@ -63,24 +63,6 @@ void Scene::add_box(const float3& lo, const float3& hi, uint16_t material_id) {
            material_id);  // -y
 }
 
-void Scene::finalize() {
-  // emissive_prims.clear();
-
-  // const int triangle_count = static_cast<int>(indices.size() / 3);
-  // for (int prim = 0; prim < triangle_count; ++prim) {
-  //   if (materials[mat_ids[static_cast<size_t>(prim)]].is_emissive()) {
-  //     emissive_prims.push_back(prim);
-  //   }
-  // }
-
-  // prim_to_light.assign(static_cast<size_t>(triangle_count), -1);
-  // for (size_t i = 0; i < emissive_prims.size(); ++i) {
-  //   prim_to_light[static_cast<size_t>(emissive_prims[i])] = static_cast<int>(i);
-  // }
-
-  // light_cdf = build_light_cdf(geometry(), material_table(), emissive_prims);
-}
-
 SceneGeometryView Scene::make_geometry_view() const {
   SceneGeometryView view;
   view.meshes = mesh_views.data();
@@ -117,7 +99,6 @@ Scene make_cornell_scene() {
   scene.add_box({-0.19f, -hy + 1e-4f, -0.17f}, {-0.02f, -hy + 0.33f, 0.00f}, white);
   scene.add_box({0.03f, -hy + 1e-4f, 0.05f}, {0.20f, -hy + 0.165f, 0.22f}, white);
 
-  scene.finalize();
   return scene;
 }
 

@@ -13,6 +13,7 @@
 #include "io/image_io.h"
 #include "parallel/thread_pool.h"
 #include "render/cpu/cpu_path_renderer.h"
+#include "light/cdf_light_build.h"
 #include "scene/scene_builder.h"
 #include "scene/scene_view.h"
 
@@ -47,6 +48,8 @@ std::vector<uint8_t> render_cornell() {
     const re::PinholeParams camera = re::make_pinhole(
         {0.0f, 0.0f, 1.08f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, 38.0f, kWidth, kHeight);
 
+    const re::CdfLightData lights = re::build_cdf_lights(view);
+
     const re::CpuServices services(accel);
 
     re::PathTracerSettings pt;
@@ -54,7 +57,7 @@ std::vector<uint8_t> render_cornell() {
     pt.max_depth  = kMaxDepth;
     pt.integrator = re::IntegratorMode::Mis;
 
-    const re::CpuPathRenderer renderer(view, scene.light_view(), services, pool, pt);
+    const re::CpuPathRenderer renderer(view, lights.selector(), services, pool, pt);
 
     re::Film film(kWidth, kHeight);
     renderer.render(camera, film);

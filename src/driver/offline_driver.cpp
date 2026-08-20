@@ -15,6 +15,7 @@
 #include "render/cpu/cpu_debug_renderer.h"
 #include "scene/scene_builder.h"
 #include "scene/scene_view.h"
+#include "light/cdf_light_build.h"
 #include "io/gltf/loader.h"
 
 namespace re {
@@ -27,11 +28,9 @@ bool run_offline(const RenderSettings& settings) {
     // }
     scene = make_cornell_scene();
     
-    const uint16_t lamp = scene.add_material(
-        make_material({0.0f, 0.0f, 0.0f}, 0.0f, 1.0f, {30.0f, 30.0f, 30.0f}));
-    scene.add_quad({-1, 3, -1}, {1, 3, -1}, {1, 3, 1}, {-1, 3, 1}, lamp);
-
-    scene.finalize();
+    // const uint16_t lamp = scene.add_material(
+    //     make_material({0.0f, 0.0f, 0.0f}, 0.0f, 1.0f, {30.0f, 30.0f, 30.0f}));
+    // scene.add_quad({-1, 3, -1}, {1, 3, -1}, {1, 3, 1}, {-1, 3, 1}, lamp);
 
     SceneGeometryView scene_geometry = scene.make_geometry_view();
     EmbreeAccel accel;
@@ -41,6 +40,9 @@ bool run_offline(const RenderSettings& settings) {
     scene_view.geometry       = scene_geometry;
     scene_view.materials      = scene.material_table();
     scene_view.material_count = static_cast<int>(scene.materials.size());
+
+    const CdfLightData lights = build_cdf_lights(scene_view);
+    log_info("lights: {} emissive primitives", lights.refs.size());
 
     ThreadPool pool(settings.threads);
     log_info("using {} threads", pool.thead_count());
@@ -52,7 +54,7 @@ bool run_offline(const RenderSettings& settings) {
                      45.0f, settings.width, settings.height);
 
     const CpuServices     services(accel);
-    const CpuPathRenderer path_renderer(scene_view, scene.light_view(), services, pool,
+    const CpuPathRenderer path_renderer(scene_view, lights.selector(), services, pool,
                                         settings.path_tracer);
     // const CpuDebugRenderer debug_renderer(scene_geometry, accel, DebugMode::Normals, pool);
     Film film(settings.width, settings.height);

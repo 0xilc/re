@@ -15,6 +15,7 @@ add_library(re_core
   driver/offline_driver.cpp
   scene/scene_builder.cpp
   scene/mesh.cpp
+  light/cdf_light_build.cpp
   parallel/thread_pool.cpp
   parallel/scheduler.cpp
 )
