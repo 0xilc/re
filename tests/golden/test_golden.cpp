@@ -32,11 +32,13 @@ const char* kReferencePath = "tests/golden/cornell/reference.png";
 std::vector<uint8_t> render_cornell() {
     const re::Scene scene = re::make_cornell_scene();
 
+    const re::SceneGeometryView geometry = scene.make_geometry_view();
+
     re::EmbreeAccel accel;
-    accel.build(scene.geometry());
+    accel.build(geometry);
 
     re::SceneView view;
-    view.geometry       = scene.geometry();
+    view.geometry       = geometry;
     view.materials      = scene.material_table();
     view.material_count = static_cast<int>(scene.materials.size());
 

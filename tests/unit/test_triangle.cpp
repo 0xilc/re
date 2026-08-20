@@ -125,11 +125,19 @@ TEST_CASE("BruteAccel: nearest hit wins and misses are encoded in primitive_id")
     };
     const uint32_t indices[] = {0, 1, 2, 3, 4, 5};
 
-    re::MeshView geometry;
-    geometry.positions      = positions;
-    geometry.indices        = indices;
-    geometry.vertex_count   = 6;
-    geometry.triangle_count = 2;
+    re::MeshView mesh;
+    mesh.positions      = positions;
+    mesh.indices        = indices;
+    mesh.vertex_count   = 6;
+    mesh.triangle_count = 2;
+
+    const re::Instance instance = re::make_instance(re::transform_identity(), 0);
+
+    re::SceneGeometryView geometry;
+    geometry.meshes         = &mesh;
+    geometry.instances      = &instance;
+    geometry.mesh_count     = 1;
+    geometry.instance_count = 1;
 
     re::BruteAccel accel;
     accel.build(geometry);

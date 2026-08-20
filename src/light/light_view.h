@@ -5,12 +5,26 @@
 
 namespace re {
 
-struct LightView {
-  const int*    prims = nullptr;
-  const float*  cdf   = nullptr;
-  const int*    prim_to_light = nullptr;
-  int           count = 0;
+struct LightRef {
+  int instance_id;
+  int prim_id;
 };
+
+struct LightView {
+  const LightRef* refs  = nullptr;
+  const float*    cdf   = nullptr;
+  int             count = 0;
+};
+
+// Reverse lookup for MIS: which light is this hit, if any. Linear for now; the
+// light sampler replaces it with a per instance offset table.
+RE_HD inline int find_light(const LightView& lights, int instance_id, int prim_id) {
+  for (int i = 0; i < lights.count; ++i) {
+    if (lights.refs[i].instance_id == instance_id && lights.refs[i].prim_id == prim_id) return i;
+  }
+
+  return -1;
+}
 
 struct LightPick {
   int   index;

@@ -39,8 +39,8 @@ RE_HD inline LightSample sample_light(const SceneView& scene, const LightView& l
   const LightPick pick = pick_light(lights, u_pick);
   if (pick.index < 0 || !(pick.pdf > 0.0f)) return invalid_light_sample();
 
-  const int prim = lights.prims[pick.index];
-  const Triangle tri = get_triangle(scene.geometry, prim);
+  const LightRef ref = lights.refs[pick.index];
+  const Triangle tri = scene.triangle_at(ref.instance_id, ref.prim_id);
   const float2 bary = sample_uniform_triangle(u_pos);
   const float3 p = tri.get_point(bary.x, bary.y);
   const float3 n = tri.geometric_normal();
@@ -51,7 +51,7 @@ RE_HD inline LightSample sample_light(const SceneView& scene, const LightView& l
   
   const float dist =  sqrtf(dist_sq);
   const float3 wi = to_light * (1.0f / dist);
-  const Material& mat = scene.material_at(prim);
+  const Material& mat = scene.material_at(ref.instance_id, ref.prim_id);
   const Spectrum L = emitted_radiance(mat, n, -wi);
 
   const float cos_light = dot(n, -wi);
@@ -70,8 +70,8 @@ RE_HD inline float light_pdf(const SceneView& scene, const LightView& lights,
 {
   if (light_index < 0) return 0.0f;
 
-  const int prim = lights.prims[light_index];
-  const Triangle tri = get_triangle(scene.geometry, prim);
+  const LightRef ref = lights.refs[light_index];
+  const Triangle tri = scene.triangle_at(ref.instance_id, ref.prim_id);
   const float area = tri.area();
   if (area <= 0.0f) return 0.0f;
 

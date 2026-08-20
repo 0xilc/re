@@ -29,10 +29,10 @@ RE_HD inline Spectrum li_naive(const Ray &camera_ray,
     const Hit hit = services.intersect(path.ray);
     if (!is_hit(hit)) break;
 
-    const Triangle tri = get_triangle(scene.geometry, hit.primitive_id);
+    const Triangle tri = scene.triangle_at(hit.instance_id, hit.primitive_id);
     const float3    ng = tri.geometric_normal();
     const float3    wo = -path.ray.dir;
-    const Material& mat = scene.material_at(hit.primitive_id);
+    const Material& mat = scene.material_at(hit.instance_id, hit.primitive_id);
 
     path.radiance = path.radiance + path.throughput * emitted_radiance(mat, ng, wo);
 
@@ -70,10 +70,10 @@ RE_HD inline Spectrum li_nee(const Ray& camera_ray, const SceneView& scene,
     const Hit hit = services.intersect(path.ray);
     if (!is_hit(hit)) break;
 
-    const Triangle tri = get_triangle(scene.geometry, hit.primitive_id);
+    const Triangle tri = scene.triangle_at(hit.instance_id, hit.primitive_id);
     const float3    ng = tri.geometric_normal();
     const float3    wo = -path.ray.dir;
-    const Material& mat = scene.material_at(hit.primitive_id);
+    const Material& mat = scene.material_at(hit.instance_id, hit.primitive_id);
     
     if (path.specular_bounce) {
       path.radiance = path.radiance + path.throughput * emitted_radiance(mat, ng, wo);
@@ -119,16 +119,16 @@ RE_HD inline Spectrum li_mis(const Ray& camera_ray, const SceneView& scene,
     const Hit hit = services.intersect(path.ray);
     if (!is_hit(hit)) break;
 
-    const Triangle tri = get_triangle(scene.geometry, hit.primitive_id);
+    const Triangle tri = scene.triangle_at(hit.instance_id, hit.primitive_id);
     const float3 ng = tri.geometric_normal();
     const float3 wo = -path.ray.dir;
-    const Material& mat = scene.material_at(hit.primitive_id);
+    const Material& mat = scene.material_at(hit.instance_id, hit.primitive_id);
     const Spectrum emitted = emitted_radiance(mat, ng, wo);
     if (luminance(emitted) > 0.0f) {
       float weight = 1.0f;
 
       if (!path.specular_bounce) {
-        const int light_index = lights.prim_to_light[hit.primitive_id];
+        const int light_index = find_light(lights, hit.instance_id, hit.primitive_id);
         const float pdf_light = light_pdf(scene, lights, light_index, prev_pos, hit.u, hit.v);
         weight = power_heuristic(path.pdf_bsdf, pdf_light);
       }

@@ -38,7 +38,7 @@ bool run_offline(const RenderSettings& settings) {
     accel.build(scene_geometry);
 
     SceneView scene_view;
-    scene_view.geometry       = scene.geometry();
+    scene_view.geometry       = scene_geometry;
     scene_view.materials      = scene.material_table();
     scene_view.material_count = static_cast<int>(scene.materials.size());
 
