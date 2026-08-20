@@ -2,13 +2,9 @@
 
 #include "core/platform.h"
 #include "core/types.h"
+#include "light/light_sampler.h"
 
 namespace re {
-
-struct LightRef {
-  int instance_id;
-  int prim_id;
-};
 
 struct LightView {
   const LightRef* refs  = nullptr;

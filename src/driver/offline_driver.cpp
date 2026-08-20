@@ -21,11 +21,11 @@ namespace re {
 
 bool run_offline(const RenderSettings& settings) {
     Scene scene;
-    if (!load_gltf("data/SimpleInstancing.glb", scene)) {
-      log_error("driver: could not load scene");
-      return false;
-    }
-    // scene = make_cornell_scene();
+    // if (!load_gltf("data/SimpleInstancing.glb", scene)) {
+    //   log_error("driver: could not load scene");
+    //   return false;
+    // }
+    scene = make_cornell_scene();
     
     const uint16_t lamp = scene.add_material(
         make_material({0.0f, 0.0f, 0.0f}, 0.0f, 1.0f, {30.0f, 30.0f, 30.0f}));
@@ -46,19 +46,19 @@ bool run_offline(const RenderSettings& settings) {
     log_info("using {} threads", pool.thead_count());
 
     const PinholeParams camera =
-        make_pinhole(float3{0.0f, 0.0f, 40.0f},
+        make_pinhole(float3{0.0f, 0.0f, 1.0f},
                      float3{0.0f, 0.0f, 0.0f},
                      float3{0.0f, 1.0f, 0.0f},
                      45.0f, settings.width, settings.height);
 
     const CpuServices     services(accel);
-    // const CpuPathRenderer path_renderer(scene_view, scene.light_view(), services, pool,
-    //                                     settings.path_tracer);
-    const CpuDebugRenderer debug_renderer(scene_geometry, accel, DebugMode::Normals, pool);
+    const CpuPathRenderer path_renderer(scene_view, scene.light_view(), services, pool,
+                                        settings.path_tracer);
+    // const CpuDebugRenderer debug_renderer(scene_geometry, accel, DebugMode::Normals, pool);
     Film film(settings.width, settings.height);
 
     const auto t0 = std::chrono::steady_clock::now();
-    debug_renderer.render(camera, film);
+    path_renderer.render(camera, film);
     const auto t1 = std::chrono::steady_clock::now();
 
     log_info("Rendered {}x{} in {:.3f} seconds.", settings.width, settings.height,
