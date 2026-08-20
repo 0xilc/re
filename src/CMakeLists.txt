@@ -9,6 +9,7 @@ add_library(re_core
   io/gltf/loader.cpp
   io/gltf/mesh.cpp
   io/gltf/accessor.cpp
+  io/gltf/instancing.cpp
   render/cpu/cpu_debug_renderer.cpp
   render/cpu/cpu_path_renderer.cpp
   driver/offline_driver.cpp

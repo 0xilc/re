@@ -46,7 +46,7 @@ bool run_offline(const RenderSettings& settings) {
     log_info("using {} threads", pool.thead_count());
 
     const PinholeParams camera =
-        make_pinhole(float3{0.0f, 0.0f, 10.08f},
+        make_pinhole(float3{0.0f, 0.0f, 40.0f},
                      float3{0.0f, 0.0f, 0.0f},
                      float3{0.0f, 1.0f, 0.0f},
                      45.0f, settings.width, settings.height);

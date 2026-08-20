@@ -70,6 +70,22 @@ RE_HD inline Transform inverse(const Transform& t) {
   return inv;
 }
 
+// Composes T * R * S from a translation, a quaternion (x, y, z, w) and a scale.
+RE_HD inline Transform make_transform(const float3& t, const float4& q, const float3& s) {
+  const float xx = q.x * q.x, yy = q.y * q.y, zz = q.z * q.z;
+  const float xy = q.x * q.y, xz = q.x * q.z, yz = q.y * q.z;
+  const float wx = q.w * q.x, wy = q.w * q.y, wz = q.w * q.z;
+
+  Transform m;
+  m.r[0] = float4((1.0f - 2.0f * (yy + zz)) * s.x, (2.0f * (xy - wz)) * s.y,
+                  (2.0f * (xz + wy)) * s.z, t.x);
+  m.r[1] = float4((2.0f * (xy + wz)) * s.x, (1.0f - 2.0f * (xx + zz)) * s.y,
+                  (2.0f * (yz - wx)) * s.z, t.y);
+  m.r[2] = float4((2.0f * (xz - wy)) * s.x, (2.0f * (yz + wx)) * s.y,
+                  (1.0f - 2.0f * (xx + yy)) * s.z, t.z);
+  return m;
+}
+
 // Applies b first then a. So it's: A * B in matrix multiplication.
 RE_HD inline Transform compose(const Transform& a, const Transform& b) {
   Transform c;

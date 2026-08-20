@@ -17,6 +17,21 @@ bool read_vec3(const cgltf_accessor* accessor, std::vector<float3>& out) {
   return true;
 }
 
+bool read_vec4(const cgltf_accessor* accessor, std::vector<float4>& out) {
+  if (accessor == nullptr) return false;
+
+  const size_t count = accessor->count;
+  out.resize(count);
+
+  for (size_t i = 0; i < count; ++i) {
+    float v[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+    if (!cgltf_accessor_read_float(accessor, i, v, 4)) return false;
+    out[i] = float4{v[0], v[1], v[2], v[3]};
+  }
+
+  return true;
+}
+
 bool read_indices(const cgltf_primitive& prim, size_t vertex_count, std::vector<uint32_t>& out) {
   if (prim.indices != nullptr) {
     out.resize(prim.indices->count);

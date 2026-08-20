@@ -5,6 +5,7 @@
 #include "core/log.h"
 #include "core/transform.h"
 #include "io/gltf/context.h"
+#include "io/gltf/instancing.h"
 #include "io/gltf/mesh.h"
 
 namespace re {
@@ -25,13 +26,18 @@ void import_node(GltfContext& ctx, const cgltf_node& node) {
   cgltf_node_transform_world(&node, raw);
   const Transform world = from_cgltf(raw);
 
+  std::vector<Transform> transforms;
+  if (!read_gpu_instances(ctx, node, world, transforms)) transforms.push_back(world);
+
   for (size_t p = 0; p < node.mesh->primitives_count; ++p) {
     const cgltf_primitive& prim = node.mesh->primitives[p];
 
     const int mesh_id = import_mesh(ctx, prim);
     if (mesh_id == kInvalidMesh) continue;
 
-    ctx.scene->add_instance(world, static_cast<uint32_t>(mesh_id));
+    for (const Transform& to_world : transforms) {
+      ctx.scene->add_instance(to_world, static_cast<uint32_t>(mesh_id));
+    }
   }
 }
 
