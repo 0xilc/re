@@ -10,8 +10,8 @@
 #include "material/bsdf.h"
 #include "material/material_factory.h"
 #include "scene/scene_view.h"
-#include "light/light_view.h"
-#include "light/light_sample.h"
+#include "light/cdf_light_selector.h"
+#include "light/area_light.h"
 
 namespace re
 {
@@ -60,9 +60,9 @@ RE_HD inline Spectrum li_naive(const Ray &camera_ray,
   return path.radiance;
 }
 
-template <Services S>
+template <Services S, LightSelector Lights>
 RE_HD inline Spectrum li_nee(const Ray& camera_ray, const SceneView& scene,
-                            const LightView& lights, const S& services, 
+                            const Lights& lights, const S& services, 
                             Sampler& sampler, int max_depth) 
 {
   PathState path = make_path_state(camera_ray);
@@ -107,13 +107,13 @@ RE_HD inline Spectrum li_nee(const Ray& camera_ray, const SceneView& scene,
   return path.radiance;
 }
 
-template <Services S>
+template <Services S, LightSelector Lights>
 RE_HD inline Spectrum li_mis(const Ray& camera_ray, const SceneView& scene,
-                            const LightView& lights, const S& services, 
+                            const Lights& lights, const S& services, 
                             Sampler& sampler, int max_depth) 
 {
   PathState path = make_path_state(camera_ray);
-  float3 prev_pos = camera_ray.origin;
+  LightSampleContext prev_ctx{camera_ray.origin, -camera_ray.dir};
 
   for (path.depth = 0; path.depth < max_depth; ++path.depth) {
     const Hit hit = services.intersect(path.ray);
@@ -128,8 +128,8 @@ RE_HD inline Spectrum li_mis(const Ray& camera_ray, const SceneView& scene,
       float weight = 1.0f;
 
       if (!path.specular_bounce) {
-        const int light_index = find_light(lights, hit.instance_id, hit.primitive_id);
-        const float pdf_light = light_pdf(scene, lights, light_index, prev_pos, hit.u, hit.v);
+        const LightRef ref{hit.instance_id, hit.primitive_id};
+        const float pdf_light = area_light_pdf(scene, lights, prev_ctx, ref, hit.u, hit.v);
         weight = power_heuristic(path.pdf_bsdf, pdf_light);
       }
 
@@ -158,6 +158,7 @@ RE_HD inline Spectrum li_mis(const Ray& camera_ray, const SceneView& scene,
     const float3 offset_n = dot(wi, ng) > 0.0f ? ng : -ng;
     const float3 origin = offset_ray_origin(pos, offset_n);
     path.ray = make_ray(origin, wi);
+    prev_ctx = LightSampleContext{pos, ng};
 
     const float u_rr = sampler.next_1d();
     if (!russian_roulette(path.throughput, path.depth, u_rr)) break;

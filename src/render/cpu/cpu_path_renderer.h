@@ -4,7 +4,7 @@
 #include "film/film.h"
 #include "render/cpu/cpu_services.h"
 #include "scene/scene_view.h"
-#include "light/light_view.h"
+#include "light/cdf_light_selector.h"
 #include "parallel/thread_pool.h"
 #include "config/render_settings.h"
 
@@ -12,7 +12,7 @@ namespace re {
 
 class CpuPathRenderer {
 public:
-  CpuPathRenderer(const SceneView& scene, const LightView& lights, const CpuServices& services,
+  CpuPathRenderer(const SceneView& scene, const CdfLightSelector& lights, const CpuServices& services,
                   ThreadPool& pool, const PathTracerSettings& settings)
     : scene_(scene), lights_(lights), services_(services), pool_(&pool), settings_(settings) {}
   
@@ -20,7 +20,7 @@ public:
     
 private:
   SceneView           scene_;
-  LightView           lights_;
+  CdfLightSelector           lights_;
   const CpuServices&  services_;
   ThreadPool*         pool_;
   PathTracerSettings  settings_;

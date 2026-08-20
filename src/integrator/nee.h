@@ -5,7 +5,7 @@
 #include "core/sampler.h"
 #include "integrator/device_services.h"
 #include "integrator/mis.h"
-#include "light/light_sample.h"
+#include "light/area_light.h"
 #include "material/bsdf.h"
 
 
@@ -28,17 +28,16 @@ RE_HD inline ShadowRecord invalid_shadow_record() {
   return r;
 }
 
-RE_HD inline ShadowRecord nee_propose(const SceneView& scene, const LightView& lights,
+template <LightSelector Lights>
+RE_HD inline ShadowRecord nee_propose(const SceneView& scene, const Lights& lights,
                                       const Bsdf& bsdf, const Frame& frame, const float3& pos,
                                       const float3& ng, const float3& wo_local,
-                                      const Spectrum& throughput, Sampler& sampler, bool apply_mis) 
+                                      const Spectrum& throughput, Sampler& sampler, bool apply_mis)
 {
   const float u_pick = sampler.next_1d();
   const float2 u_pos = sampler.next_2d();
-  
-  if (lights.count <= 0) return invalid_shadow_record();
 
-  const LightSample ls = sample_light(scene, lights, pos, u_pick, u_pos);
+  const LightSample ls = sample_area_light(scene, lights, LightSampleContext{pos, ng}, u_pick, u_pos);
   if (!(ls.pdf > 0.0f)) return invalid_shadow_record();
 
   const float3 wi_local = frame.to_local(ls.wi);

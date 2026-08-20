@@ -2,7 +2,6 @@
 
 #include <concepts>
 
-#include "core/platform.h"
 #include "core/types.h"
 
 namespace re {
@@ -17,15 +16,15 @@ struct LightSampleContext {
   float3 normal;
 };
 
-struct SampledLight {
+struct LightPick {
   LightRef ref;
   float    pmf;
 };
 
 template <typename L>
-concept LightSampler = requires(const L& lights, const LightSampleContext& ctx,
+concept LightSelector = requires(const L& lights, const LightSampleContext& ctx,
                                 float u, LightRef ref) {
-  { lights.sample(ctx, u) } -> std::same_as<SampledLight>;
+  { lights.pick(ctx, u) } -> std::same_as<LightPick>;
   { lights.pmf(ctx, ref) }  -> std::same_as<float>;
 };
 
