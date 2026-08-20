@@ -5,5 +5,6 @@ re_add_test_binary(re_tests_unit unit fast
   test_triangle_intersection.cpp
   test_triangle.cpp
   test_sampler.cpp
+  test_light_selector.cpp
 )
  
