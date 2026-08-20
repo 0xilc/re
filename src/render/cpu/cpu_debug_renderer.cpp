@@ -66,9 +66,10 @@ void CpuDebugRenderer::render(const PinholeParams &camera, Film &film) const
         const Instance& inst = geometry_.instances[hit.instance_id];
         const MeshView  mesh = geometry_.meshes[inst.mesh_id];
 
-        const Triangle tri = get_triangle(mesh, hit.primitive_id);
+        const Triangle tri =
+            transform_triangle(inst.to_world, get_triangle(mesh, hit.primitive_id));
 
-        const float3 ng = transform_normal(inst.to_local, geometric_normal(tri));
+        const float3 ng = geometric_normal(tri);
 
         Spectrum color;
         switch (mode_)

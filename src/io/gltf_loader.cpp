@@ -2,6 +2,7 @@
 
 #include <cgltf.h>
 #include <cstring>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -56,38 +57,30 @@ const cgltf_accessor* find_attribute(const cgltf_primitive& prim, cgltf_attribut
   return nullptr;
 }
 
-void add_primitive(const cgltf_primitive& prim, const Transform& world, uint16_t material_id, Scene& scene) {
-  if (prim.type != cgltf_primitive_type_triangles) return;
+constexpr int kInvalidMesh = -1;
+
+int load_primitive(const cgltf_primitive& prim, uint16_t material_id, Scene& scene) {
+  if (prim.type != cgltf_primitive_type_triangles) return kInvalidMesh;
 
   Mesh mesh;
   if (!read_positions(find_attribute(prim, cgltf_attribute_type_position), mesh.positions)) {
     log_error("gltf: primitive has no readable POSITION attribute");
-    return;
+    return kInvalidMesh;
   }
 
-  std::vector<uint32_t> indices;
-  if (!read_indices(prim, mesh.positions.size(), indices)) {
+  if (!read_indices(prim, mesh.positions.size(), mesh.indices)) {
     log_error("gltf: could not read indices");
-    return;
+    return kInvalidMesh;
   }
-  if (indices.size() % 3 != 0) {
-    log_error("gltf: index count {} is not a multiple of three", indices.size());
-    return;
+  if (mesh.indices.size() % 3 != 0) {
+    log_error("gltf: index count {} is not a multiple of three", mesh.indices.size());
+    return kInvalidMesh;
   }
-  if (indices.empty()) return;
+  if (mesh.indices.empty()) return kInvalidMesh;
 
-  for (float3& p : mesh.positions) p = transform_point(world, p);
+  mesh.mat_ids.assign(mesh.indices.size() / 3, material_id);
 
-  const bool flip = is_mirrored(world);
-  mesh.indices.reserve(indices.size());
-  mesh.mat_ids.assign(indices.size() / 3, material_id);
-  for (size_t i = 0; i + 2 < indices.size(); i += 3) {
-    mesh.indices.push_back(indices[i]);
-    mesh.indices.push_back(indices[i + (flip ? 2 : 1)]);
-    mesh.indices.push_back(indices[i + (flip ? 1 : 2)]);
-  }
-
-  scene.add_mesh(std::move(mesh));
+  return static_cast<int>(scene.add_mesh(std::move(mesh)));
 }
 } // namespace
 
@@ -115,7 +108,10 @@ bool load_gltf(const std::string& path, Scene& scene) {
   // For now, a placeholder material
   const uint16_t placeholder = scene.add_material(make_material({0.75f, 0.75f, 0.75f}, 0.0f, 0.9f));
   
-  const size_t meshes_before = scene.meshes.size();
+  const size_t meshes_before    = scene.meshes.size();
+  const size_t instances_before = scene.instances.size();
+
+  std::unordered_map<const cgltf_primitive*, int> mesh_of_primitive;
 
   for (size_t i = 0; i < data->nodes_count; ++i) {
     const cgltf_node& node = data->nodes[i];
@@ -124,13 +120,23 @@ bool load_gltf(const std::string& path, Scene& scene) {
     float raw[16];
     cgltf_node_transform_world(&node, raw);
     const Transform world = from_cgltf(raw);
-    
+
     for (size_t p = 0; p < node.mesh->primitives_count; ++p) {
-      add_primitive(node.mesh->primitives[p], world, placeholder, scene);
+      const cgltf_primitive* prim = &node.mesh->primitives[p];
+
+      const auto it = mesh_of_primitive.find(prim);
+      const int mesh_id = (it != mesh_of_primitive.end())
+                              ? it->second
+                              : (mesh_of_primitive[prim] =
+                                     load_primitive(*prim, placeholder, scene));
+
+      if (mesh_id == kInvalidMesh) continue;
+      scene.add_instance(world, static_cast<uint32_t>(mesh_id));
     }
   }
 
-  const size_t meshes_added = scene.meshes.size() - meshes_before;
+  const size_t meshes_added    = scene.meshes.size() - meshes_before;
+  const size_t instances_added = scene.instances.size() - instances_before;
   size_t triangles_added = 0;
   size_t vertices_added  = 0;
   for (size_t i = meshes_before; i < scene.meshes.size(); ++i) {
@@ -138,8 +144,8 @@ bool load_gltf(const std::string& path, Scene& scene) {
     vertices_added  += scene.meshes[i].positions.size();
   }
 
-  log_info("gltf: loaded {} ({} meshes, {} triangles, {} vertices)", path, meshes_added,
-           triangles_added, vertices_added);
+  log_info("gltf: loaded {} ({} meshes, {} instances, {} triangles, {} vertices)", path,
+           meshes_added, instances_added, triangles_added, vertices_added);
 
   cgltf_free(data);
   return meshes_added > 0;

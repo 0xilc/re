@@ -21,11 +21,11 @@ namespace re {
 
 bool run_offline(const RenderSettings& settings) {
     Scene scene;
-    // if (!load_gltf("data/SimpleInstancing.glb", scene)) {
-    //   log_error("driver: could not load scene");
-    //   return false;
-    // }
-    scene = make_cornell_scene();
+    if (!load_gltf("data/SimpleInstancing.glb", scene)) {
+      log_error("driver: could not load scene");
+      return false;
+    }
+    // scene = make_cornell_scene();
     
     const uint16_t lamp = scene.add_material(
         make_material({0.0f, 0.0f, 0.0f}, 0.0f, 1.0f, {30.0f, 30.0f, 30.0f}));
@@ -46,7 +46,7 @@ bool run_offline(const RenderSettings& settings) {
     log_info("using {} threads", pool.thead_count());
 
     const PinholeParams camera =
-        make_pinhole(float3{0.0f, 0.0f, 1.08f},
+        make_pinhole(float3{0.0f, 0.0f, 10.08f},
                      float3{0.0f, 0.0f, 0.0f},
                      float3{0.0f, 1.0f, 0.0f},
                      45.0f, settings.width, settings.height);
