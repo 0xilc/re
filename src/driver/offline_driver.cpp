@@ -15,7 +15,7 @@
 #include "render/cpu/cpu_debug_renderer.h"
 #include "scene/scene_builder.h"
 #include "scene/scene_view.h"
-#include "io/gltf_loader.h"
+#include "io/gltf/loader.h"
 
 namespace re {
 
