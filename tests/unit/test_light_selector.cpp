@@ -28,6 +28,12 @@ struct LitScene {
   float pmf_of(int index) const { return lights.cdf[index + 1] - lights.cdf[index]; }
 };
 
+re::Transform translate_of(float x) {
+  re::Transform t = re::transform_identity();
+  t.r[0].w = x;
+  return t;
+}
+
 re::Transform scale_of(float s) {
   re::Transform t = re::transform_identity();
   t.r[0].x = s;
@@ -136,6 +142,39 @@ TEST_CASE("light selector: a hit that is not a light has zero pmf") {
   CHECK(sel.pmf(ctx, re::LightRef{0, 0}) == 0.0f);            // cornell floor
   CHECK(sel.pmf(ctx, re::LightRef{9999, 0}) == 0.0f);         // no such instance
   CHECK(sel.pmf(ctx, re::LightRef{re::INVALID_ID, re::INVALID_ID}) == 0.0f);
+}
+
+// With two or four lights a broken search still stumbles onto the right answer.
+// This one is deep enough that it cannot.
+TEST_CASE("light selector: reverse lookup finds every light and nothing else") {
+  constexpr int kExtraInstances = 64;
+
+  re::Scene scene;
+  const uint16_t lamp = scene.add_material(
+      re::make_material({0.0f, 0.0f, 0.0f}, 0.0f, 1.0f, {10.0f, 10.0f, 10.0f}));
+  const uint16_t grey = scene.add_material(re::make_material({0.5f, 0.5f, 0.5f}, 0.0f, 1.0f));
+
+  scene.add_quad({-1, 0, -1}, {1, 0, -1}, {1, 0, 1}, {-1, 0, 1}, lamp);  // mesh 0, instance 0
+  scene.add_quad({-1, 2, -1}, {1, 2, -1}, {1, 2, 1}, {-1, 2, 1}, grey);  // mesh 1, instance 1
+  for (int i = 0; i < kExtraInstances; ++i) {
+    scene.add_instance(translate_of(3.0f * static_cast<float>(i + 1)), 0);
+  }
+
+  const LitScene lit{std::move(scene)};
+  const re::CdfLightSelector sel = lit.lights.selector();
+  const re::LightSampleContext ctx{};
+
+  REQUIRE(sel.count == 2 * (1 + kExtraInstances));
+
+  for (int i = 0; i < sel.count; ++i) {
+    const re::LightRef ref = lit.lights.refs[static_cast<size_t>(i)];
+    CHECK(sel.pmf(ctx, ref) == lit.pmf_of(i));
+  }
+
+  CHECK(sel.pmf(ctx, re::LightRef{1, 0}) == 0.0f);  // the grey quad's instance
+  CHECK(sel.pmf(ctx, re::LightRef{1, 1}) == 0.0f);
+  CHECK(sel.pmf(ctx, re::LightRef{0, 7}) == 0.0f);  // past the end of a lit mesh
+  CHECK(sel.pmf(ctx, re::LightRef{999, 0}) == 0.0f);
 }
 
 TEST_CASE("light selector: identical instances of one lamp split the weight evenly") {

@@ -1,5 +1,8 @@
 #include "light/cdf_light_build.h"
 
+#include <algorithm>
+#include <cassert>
+
 #include "core/spectrum.h"
 
 namespace re {
@@ -8,6 +11,8 @@ CdfLightData build_cdf_lights(const SceneView& scene) {
   CdfLightData data;
   std::vector<float> weights;
 
+  // Walking instances then primitives in ascending order leaves refs sorted by
+  // light_key, which is what CdfLightSelector::pmf binary searches.
   const int instance_count = static_cast<int>(scene.geometry.instance_count);
   for (int inst_id = 0; inst_id < instance_count; ++inst_id) {
     const Instance& inst = scene.geometry.instances[inst_id];
@@ -24,6 +29,9 @@ CdfLightData build_cdf_lights(const SceneView& scene) {
       weights.push_back(luminance(mat.emission) * area);
     }
   }
+
+  assert(std::is_sorted(data.refs.begin(), data.refs.end(),
+                        [](LightRef a, LightRef b) { return light_key(a) < light_key(b); }));
 
   const size_t count = data.refs.size();
   data.cdf.assign(count + 1, 0.0f);

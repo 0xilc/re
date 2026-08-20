@@ -1,10 +1,17 @@
 #pragma once
 
+#include <cstdint>
+
 #include "core/hit.h"
 #include "core/platform.h"
 #include "light/light_selector.h"
 
 namespace re {
+
+RE_HD inline uint64_t light_key(LightRef ref) {
+  return (static_cast<uint64_t>(static_cast<uint32_t>(ref.instance_id)) << 32) |
+         static_cast<uint32_t>(ref.prim_id);
+}
 
 struct CdfLightSelector {
   const LightRef* refs  = nullptr;
@@ -30,13 +37,21 @@ struct CdfLightSelector {
   }
 
   RE_HD float pmf(const LightSampleContext&, LightRef ref) const {
-    for (int i = 0; i < count; ++i) {
-      if (refs[i].instance_id == ref.instance_id && refs[i].prim_id == ref.prim_id) {
-        return cdf[i + 1] - cdf[i];
+    const uint64_t key = light_key(ref);
+
+    int lo = 0;
+    int hi = count;
+    while (lo < hi) {
+      const int mid = (lo + hi) / 2;
+      if (light_key(refs[mid]) < key) {
+        lo = mid + 1;
+      } else {
+        hi = mid;
       }
     }
 
-    return 0.0f;
+    if (lo >= count || light_key(refs[lo]) != key) return 0.0f;
+    return cdf[lo + 1] - cdf[lo];
   }
 };
 
