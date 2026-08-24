@@ -4,6 +4,7 @@
 #include "scene/mesh_view.h"
 #include "scene/instance.h"
 #include "scene/material.h"
+#include "scene/texture_view.h"
 
 namespace re {
 
@@ -15,9 +16,11 @@ struct SceneGeometryView {
 };
 
 struct SceneView {
-  SceneGeometryView geometry;
-  const Material*   materials = nullptr;
-  int               material_count = 0;
+  SceneGeometryView  geometry;
+  const Material*    materials = nullptr;
+  int                material_count = 0;
+  const TextureView* textures = nullptr;
+  int                texture_count = 0;
 
   RE_HD const Material& material_at(int inst_id, int prim_id) const {
     int mesh_id = geometry.instances[inst_id].mesh_id;

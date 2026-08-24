@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "shading/texture_view.h"
+#include "scene/texture_view.h"
 
 namespace re {
 

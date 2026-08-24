@@ -6,6 +6,7 @@
 #include "core/spectrum.h"
 #include "core/types.h"
 #include "core/math.h"
+#include "scene/texture_view.h"
 
 namespace re {
 
@@ -15,9 +16,13 @@ struct alignas(64) Material {
   float metallic;
   float roughness;
   float ior;
-  int8_t priority;
-  uint8_t reserved[27];
+  uint16_t base_color_tex;
+  uint16_t metallic_roughness_tex;
+  uint16_t normal_tex;
+  uint16_t emissive_tex;
 
+  int8_t priority;
+  uint8_t reserved[19];
 
   RE_HD inline bool is_emissive() const {
     return emission.x > 0.0f || emission.y > 0.0f || emission.z > 0.0f; 
@@ -34,6 +39,10 @@ RE_HD inline Material make_material(const Spectrum& base_color,
   m.metallic = metallic;
   m.roughness = roughness;
   m.ior = 1.5f;
+  m.base_color_tex = kNoTexture;
+  m.metallic_roughness_tex = kNoTexture;
+  m.normal_tex = kNoTexture;
+  m.emissive_tex = kNoTexture;
   m.priority = 0;
 
   return m;
