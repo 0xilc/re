@@ -6,5 +6,6 @@ re_add_test_binary(re_tests_unit unit fast
   test_triangle.cpp
   test_sampler.cpp
   test_light_selector.cpp
+  test_mesh_uv.cpp
 )
  

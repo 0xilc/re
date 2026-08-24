@@ -30,6 +30,11 @@ struct SceneView {
     return transform_triangle(inst.to_world,
                               get_triangle(geometry.meshes[inst.mesh_id], prim_id));
   }
+
+  RE_HD float2 uv_at(int inst_id, int prim_id, float u, float v) const {
+    const Instance& inst = geometry.instances[inst_id];
+    return interpolate_uv(geometry.meshes[inst.mesh_id], prim_id, u, v);
+  }
 };
 
 }
