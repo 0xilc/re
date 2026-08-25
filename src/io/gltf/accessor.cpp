@@ -2,6 +2,21 @@
 
 namespace re {
 
+bool read_vec2(const cgltf_accessor* accessor, std::vector<float2>& out) {
+  if (accessor == nullptr) return false;
+
+  const size_t count = accessor->count;
+  out.resize(count);
+
+  for (size_t i = 0; i < count; ++i) {
+    float v[2] = {0.0f, 0.0f};
+    if (!cgltf_accessor_read_float(accessor, i, v, 2)) return false;
+    out[i] = float2{v[0], v[1]};
+  }
+
+  return true;
+}
+
 bool read_vec3(const cgltf_accessor* accessor, std::vector<float3>& out) {
   if (accessor == nullptr) return false;
 
@@ -47,9 +62,12 @@ bool read_indices(const cgltf_primitive& prim, size_t vertex_count, std::vector<
   return true;
 }
 
-const cgltf_accessor* find_attribute(const cgltf_primitive& prim, cgltf_attribute_type type) {
+const cgltf_accessor* find_attribute(const cgltf_primitive& prim, cgltf_attribute_type type,
+                                     int index) {
   for (size_t i = 0; i < prim.attributes_count; ++i) {
-    if (prim.attributes[i].type == type) return prim.attributes[i].data;
+    if (prim.attributes[i].type == type && prim.attributes[i].index == index) {
+      return prim.attributes[i].data;
+    }
   }
 
   return nullptr;

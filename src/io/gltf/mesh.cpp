@@ -18,7 +18,25 @@ int load_primitive(GltfContext& ctx, const cgltf_primitive& prim) {
     return kInvalidMesh;
   }
 
-  read_vec3(find_attribute(prim, cgltf_attribute_type_normal), mesh.normals);
+  if (!read_vec3(find_attribute(prim, cgltf_attribute_type_normal), mesh.normals)) {
+    mesh.normals.clear();
+  }
+
+  if (!read_vec2(find_attribute(prim, cgltf_attribute_type_texcoord), mesh.uvs)) {
+    mesh.uvs.clear();
+  }
+
+  if (!mesh.normals.empty() && mesh.normals.size() != mesh.positions.size()) {
+    log_error("gltf: NORMAL count {} does not match POSITION count {}", mesh.normals.size(),
+              mesh.positions.size());
+    mesh.normals.clear();
+  }
+
+  if (!mesh.uvs.empty() && mesh.uvs.size() != mesh.positions.size()) {
+    log_error("gltf: TEXCOORD_0 count {} does not match POSITION count {}", mesh.uvs.size(),
+              mesh.positions.size());
+    mesh.uvs.clear();
+  }
 
   if (!read_indices(prim, mesh.positions.size(), mesh.indices)) {
     log_error("gltf: could not read indices");
