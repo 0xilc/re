@@ -4,21 +4,9 @@
 #include <cmath>
 
 #include "core/log.h"
+#include "core/color.h"
 
 namespace re {
-
-float linear_to_srgb(float linear) {
-    linear = linear > 0.0f ? (linear < 1.0f ? linear : 1.0f) : 0.0f;
-
-    return linear <= 0.0031308f ? 12.92f * linear
-                                : 1.055f * std::pow(linear, 1.0f / 2.4f) - 0.055f;
-}
-
-float srgb_to_linear(float srgb) {
-    srgb = srgb > 0.0f ? (srgb < 1.0f ? srgb : 1.0f) : 0.0f;
-
-    return srgb <= 0.04045f ? srgb / 12.92f : std::pow((srgb + 0.055f) / 1.055f, 2.4f);
-}
 
 std::vector<uint8_t> encode_srgb8(const std::vector<float3>& linear) {
     std::vector<uint8_t> out(linear.size() * 3);

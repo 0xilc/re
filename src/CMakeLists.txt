@@ -1,5 +1,6 @@
 add_library(re_core
   core/log.cpp
+  core/color.cpp
   config/config.cpp
   accel/embree_accel.cpp
   accel/brute_accel.cpp
