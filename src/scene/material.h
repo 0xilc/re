@@ -6,9 +6,10 @@
 #include "core/spectrum.h"
 #include "core/types.h"
 #include "core/math.h"
-#include "scene/texture_view.h"
 
 namespace re {
+
+inline constexpr uint16_t kNoTexture = 0xFFFF;
 
 struct alignas(64) Material {
   Spectrum base_color;
@@ -34,16 +35,16 @@ RE_HD inline Material make_material(const Spectrum& base_color,
                                     float roughness, 
                                     const Spectrum& emission = Spectrum{0.0f, 0.0f, 0.0f}) {
   Material m;
-  m.base_color = base_color;
-  m.emission = emission;
-  m.metallic = metallic;
-  m.roughness = roughness;
-  m.ior = 1.5f;
-  m.base_color_tex = kNoTexture;
-  m.metallic_roughness_tex = kNoTexture;
-  m.normal_tex = kNoTexture;
-  m.emissive_tex = kNoTexture;
-  m.priority = 0;
+  m.base_color              = base_color;
+  m.emission                = emission;
+  m.metallic                = metallic;
+  m.roughness               = roughness;
+  m.ior                     = 1.5f;
+  m.base_color_tex          = kNoTexture;
+  m.metallic_roughness_tex  = kNoTexture;
+  m.normal_tex              = kNoTexture;
+  m.emissive_tex            = kNoTexture;
+  m.priority                = 0;
 
   return m;
 }
