@@ -6,6 +6,7 @@
 #include "material/bsdf.h"
 #include "material/material_factory.h"
 #include "parallel/scheduler.h"
+#include "shading/surface_interaction.h"
 
 
 namespace re {
@@ -20,11 +21,6 @@ namespace {
     0.0f,
     make_empty_spectrum()
   );
-
-  float3 geometric_normal(const Triangle& tri)
-  {
-    return normalize(cross(tri.v1 - tri.v0, tri.v2 - tri.v0));
-  }
 
   Spectrum shade_lambert(const float3& normal, const Ray& ray)
   {
@@ -62,23 +58,20 @@ void CpuDebugRenderer::render(const PinholeParams &camera, Film &film) const
           film.set_pixel(x, y, missColor);
           continue;
         }
-
-        const Instance& inst = geometry_.instances[hit.instance_id];
-        const MeshView  mesh = geometry_.meshes[inst.mesh_id];
-
-        const Triangle tri =
-            transform_triangle(inst.to_world, get_triangle(mesh, hit.primitive_id));
-
-        const float3 ng = geometric_normal(tri);
+        
+        const SurfaceInteraction si = unpack(scene_, hit, ray);
 
         Spectrum color;
         switch (mode_)
         {
+          case DebugMode::UV:
+            color = Spectrum{si.uv.x, si.uv.y, 0.0f};
+            break;
           case DebugMode::Normals:
-            color = ng * 0.5f + 0.5f;
+            color = si.ns * 0.5f + 0.5f;
             break;
           case DebugMode::Lambert:
-            color = shade_lambert(ng, ray);
+            color = shade_lambert(si.ng, ray);
             break;
         }
 

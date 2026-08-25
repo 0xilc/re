@@ -56,7 +56,7 @@ bool run_offline(const RenderSettings& settings) {
     const CpuServices     services(accel);
     // const CpuPathRenderer path_renderer(scene_view, lights.selector(), services, pool,
     //                                     settings.path_tracer);
-    const CpuDebugRenderer debug_renderer(scene_geometry, accel, DebugMode::Normals, pool);
+    const CpuDebugRenderer debug_renderer(scene_view, accel, DebugMode::Normals, pool);
     Film film(settings.width, settings.height);
 
     const auto t0 = std::chrono::steady_clock::now();

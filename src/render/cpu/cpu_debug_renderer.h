@@ -8,17 +8,17 @@
 
 namespace re {
 
-enum class DebugMode { Normals, Lambert }; 
+enum class DebugMode { UV, Normals, Lambert }; 
 
 class CpuDebugRenderer {
 public:
-  CpuDebugRenderer(const SceneGeometryView& geometry, const Accel& accel, DebugMode mode, ThreadPool& pool)
-    : geometry_(geometry), accel_(accel), mode_(mode), pool_(&pool){}
+  CpuDebugRenderer(const SceneView& scene, const Accel& accel, DebugMode mode, ThreadPool& pool)
+    : scene_(scene), accel_(accel), mode_(mode), pool_(&pool){}
 
   void render(const PinholeParams& camera, Film& film) const;
 
 private:
-  SceneGeometryView geometry_;
+  SceneView scene_;
   const Accel& accel_;
   DebugMode mode_;
   ThreadPool* pool_;
