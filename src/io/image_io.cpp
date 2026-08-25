@@ -2,11 +2,38 @@
 
 #include <stb_image_write.h>
 #include <cmath>
+#include <stb_image.h>
 
 #include "core/log.h"
 #include "core/color.h"
 
 namespace re {
+namespace {
+ImageData finish(uint8_t* p, int w, int h) {
+  ImageData img;
+  if (!p) return img;
+  img.width  = static_cast<uint32_t>(w);
+  img.height = static_cast<uint32_t>(h);
+  img.pixels.assign(p, p + static_cast<size_t>(w) * h * 4);
+  stbi_image_free(p);
+  return img;
+}
+}  // namespace
+
+ImageData read_image(const std::string& path) {
+  int w = 0, h = 0, n = 0;
+  uint8_t* p = stbi_load(path.c_str(), &w, &h, &n, 4);   // 4 = RGBA'ya zorla
+  if (!p) log_error("decode_image failed: %s (%s)", path.c_str(), stbi_failure_reason());
+  return finish(p, w, h);
+}
+
+ImageData read_image(const uint8_t* bytes, size_t n) {
+  if (!bytes || n == 0) return {};
+  int w = 0, h = 0, ch = 0;
+  uint8_t* p = stbi_load_from_memory(bytes, static_cast<int>(n), &w, &h, &ch, 4);
+  if (!p) log_error("decode_image (embedded) failed: %s", stbi_failure_reason());
+  return finish(p, w, h);
+}
 
 std::vector<uint8_t> encode_srgb8(const std::vector<float3>& linear) {
     std::vector<uint8_t> out(linear.size() * 3);
