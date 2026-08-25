@@ -22,6 +22,11 @@ struct Triangle {
   }
 };
 
+template <typename T>
+RE_HD inline T barycentric(const T& a, const T& b, const T& c, float u, float v) {
+  return a * (1.0f - u - v) + b * u + c * v;
+}
+
 // Moves the triangle into another space, e.g. instance local -> world. Taking
 // geometric_normal() afterwards is correct even for mirrored transforms, which
 // an inverse transpose applied to the local normal would get backwards.

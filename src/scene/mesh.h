@@ -10,6 +10,7 @@ namespace re {
 
 struct Mesh {
   std::vector<float3>   positions;
+  std::vector<float3>   normals;
   std::vector<uint32_t> indices;
   std::vector<uint16_t> mat_ids;
   std::vector<float2>   uvs;

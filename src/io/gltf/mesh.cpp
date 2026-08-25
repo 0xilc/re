@@ -18,6 +18,8 @@ int load_primitive(GltfContext& ctx, const cgltf_primitive& prim) {
     return kInvalidMesh;
   }
 
+  read_vec3(find_attribute(prim, cgltf_attribute_type_normal), mesh.normals);
+
   if (!read_indices(prim, mesh.positions.size(), mesh.indices)) {
     log_error("gltf: could not read indices");
     ++ctx.errors;
@@ -29,7 +31,7 @@ int load_primitive(GltfContext& ctx, const cgltf_primitive& prim) {
     ++ctx.errors;
     return kInvalidMesh;
   }
-
+  
   if (mesh.indices.empty()) return kInvalidMesh;
 
   mesh.mat_ids.assign(mesh.indices.size() / 3, ctx.placeholder_material);
