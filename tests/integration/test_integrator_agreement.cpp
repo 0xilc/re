@@ -9,6 +9,7 @@
 #include "integrator/path_integrator.h"
 #include "light/cdf_light_build.h"
 #include "render/cpu/cpu_services.h"
+#include "render/cpu/texture_cache.h"
 #include "scene/scene_builder.h"
 
 // Naive, NEE and MIS are three estimators of the same integral. If a pdf, a
@@ -92,7 +93,10 @@ TEST_CASE("integrator agreement: nee and mis converge where naive converges") {
   const re::CdfLightData lights = re::build_cdf_lights(view);
   REQUIRE(lights.refs.size() == 2);  // the ceiling, two triangles
 
-  const re::CpuServices services(accel);
+  re::TextureCache textures;
+  textures.commit(scene.texture_descs);
+
+  const re::CpuServices services(accel, textures);
   const re::CdfLightSelector selector = lights.selector();
 
   const re::PinholeParams camera = re::make_pinhole(

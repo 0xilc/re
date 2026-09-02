@@ -13,6 +13,7 @@
 #include "parallel/thread_pool.h"
 #include "render/cpu/cpu_path_renderer.h"
 #include "render/cpu/cpu_debug_renderer.h"
+#include "render/cpu/texture_cache.h"
 #include "scene/scene_builder.h"
 #include "scene/scene_view.h"
 #include "light/cdf_light_build.h"
@@ -53,7 +54,10 @@ bool run_offline(const RenderSettings& settings) {
                      float3{0.0f, 1.0f, 0.0f},
                      45.0f, settings.width, settings.height);
 
-    const CpuServices     services(accel);
+    TextureCache textures;
+    textures.commit(scene.texture_descs);
+
+    const CpuServices     services(accel, textures);
     // const CpuPathRenderer path_renderer(scene_view, lights.selector(), services, pool,
     //                                     settings.path_tracer);
     const CpuDebugRenderer debug_renderer(scene_view, accel, DebugMode::UV, pool);

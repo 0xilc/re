@@ -10,6 +10,7 @@
 #include "io/image_io.h"
 #include "parallel/thread_pool.h"
 #include "render/cpu/cpu_path_renderer.h"
+#include "render/cpu/texture_cache.h"
 #include "light/cdf_light_build.h"
 #include "scene/scene_builder.h"
 #include "scene/scene_view.h"
@@ -45,7 +46,10 @@ int main(int argc, char** argv) {
 
     const re::CdfLightData lights = re::build_cdf_lights(view);
 
-    const re::CpuServices services(accel);
+    re::TextureCache textures;
+    textures.commit(scene.texture_descs);
+
+    const re::CpuServices services(accel, textures);
 
     re::PathTracerSettings pt;
     pt.spp        = kSpp;

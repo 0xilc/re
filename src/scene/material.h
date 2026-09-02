@@ -9,21 +9,20 @@
 
 namespace re {
 
-inline constexpr uint16_t kNoTexture = 0xFFFF;
+inline constexpr uint32_t kNoTexture = 0xFFFFFFFFu;
 
 struct alignas(64) Material {
-  Spectrum base_color;
-  Spectrum emission;
-  float metallic;
-  float roughness;
-  float ior;
-  uint16_t base_color_tex;
-  uint16_t metallic_roughness_tex;
-  uint16_t normal_tex;
-  uint16_t emissive_tex;
-
-  int8_t priority;
-  uint8_t reserved[19];
+  Spectrum  base_color;
+  Spectrum  emission;
+  float     metallic;
+  float     roughness;
+  float     ior;
+  uint32_t  base_color_tex;
+  uint32_t  metallic_roughness_tex;
+  uint32_t  normal_tex;
+  uint32_t  emissive_tex;
+  int8_t    priority;
+  uint8_t   reserved[11];
 
   RE_HD inline bool is_emissive() const {
     return emission.x > 0.0f || emission.y > 0.0f || emission.z > 0.0f; 

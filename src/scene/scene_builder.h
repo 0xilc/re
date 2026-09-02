@@ -8,6 +8,7 @@
 #include "scene/material.h"
 #include "scene/instance.h"
 #include "scene/scene_view.h"
+#include "scene/texture_desc.h"
 
 namespace re {
 struct Scene {
@@ -15,6 +16,7 @@ struct Scene {
   std::vector<MeshView> mesh_views;
   std::vector<Instance> instances;
   std::vector<Material> materials;
+  std::vector<TextureDesc> texture_descs;
 
   const Material* material_table() const { return materials.data(); }
 

@@ -8,17 +8,20 @@
 
 namespace re {
 namespace {
-CpuTexture push_placeholder(std::vector<uint8_t>& arena) {
+
+constexpr uint32_t kPlaceholderOffset = 0;
+
+CpuTexture placeholder() {
   CpuTexture tex;
-  tex.base = static_cast<uint32_t>(arena.size());
+  tex.base        = kPlaceholderOffset;
   tex.width       = 1;
   tex.height      = 1;
   tex.level_count = 1;
   tex.space       = ColorSpace::Linear;
 
-  arena.insert(arena.end(), {255, 0, 255, 255});
   return tex;
 }
+
 } // namespace
 
 void TextureCache::commit(const std::vector<TextureDesc>& descs) {
@@ -26,11 +29,13 @@ void TextureCache::commit(const std::vector<TextureDesc>& descs) {
   textures_.clear();
   textures_.reserve(descs.size());
 
+  arena_.insert(arena_.end(), {255, 0, 255, 255});
+
   for (const TextureDesc& desc : descs) {
     const TextureImage image = build_texture(desc);
 
     if (!image.ok()) {
-      textures_.push_back(push_placeholder(arena_));
+      textures_.push_back(placeholder());
       continue;
     }
 

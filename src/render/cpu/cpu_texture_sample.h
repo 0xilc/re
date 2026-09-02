@@ -1,5 +1,6 @@
 #pragma once 
 
+#include <cassert>
 #include <cmath>
 #include <cstdint>
 
@@ -27,8 +28,8 @@ inline float4 fetch_nearest(const uint8_t* texels, const CpuTexture& tex, uint8_
   const int h = static_cast<int>(mip_size(tex.height, level));
   const uint8_t* base = texels + tex.base + tex.mip_offsets[level];
 
-  const int x = wrap_index(static_cast<int>(std::floor(uv.x * w)), w, tex.wrap_u);
-  const int y = wrap_index(static_cast<int>(std::floor(uv.y * h)), h, tex.wrap_v);
+  const int x = wrap_index(static_cast<int>(std::floor(uv.x * static_cast<float>(w))), w, tex.wrap_u);
+  const int y = wrap_index(static_cast<int>(std::floor(uv.y * static_cast<float>(h))), h, tex.wrap_v);
   
   const uint8_t* texel = base + (static_cast<size_t>(y) * w + x) * kTextureChannels;
   const bool   is_srgb = tex.space == ColorSpace::SRGB;
@@ -46,8 +47,8 @@ inline float4 fetch_bilinear(const uint8_t* texels, const CpuTexture& tex, uint8
   const int      h    = static_cast<int>(mip_size(tex.height, level));
   const uint8_t* base = texels + tex.base + tex.mip_offsets[level];
 
-  const float x = uv.x * w - 0.5f;
-  const float y = uv.y * h - 0.5f;
+  const float x = uv.x * static_cast<float>(w) - 0.5f;
+  const float y = uv.y * static_cast<float>(h) - 0.5f;
 
   const float fx = x - std::floor(x);
   const float fy = y - std::floor(y);
@@ -94,8 +95,8 @@ inline float4 fetch_trilinear(const uint8_t* texels, const CpuTexture& tex, floa
 
 
 inline float4 sample_texture(const uint8_t* texels, const CpuTexture& tex, float2 uv, float lod) {
-  if (!tex.ok()) return float4{1.0f, 0.0f, 1.0f, 1.0f};
-  
+  assert(tex.ok() && "sampled a texture the cache never committed");
+
   const float level = clamp(lod, 0.0f, static_cast<float>(tex.level_count - 1));
   const uint8_t nearest_level = static_cast<uint8_t>(level + 0.5f);
 
