@@ -1,6 +1,7 @@
 #include "io/gltf/loader.h"
 
 #include <cgltf.h>
+#include <filesystem>
 
 #include "core/log.h"
 #include "core/transform.h"
@@ -74,6 +75,7 @@ bool load_gltf(const std::string& path, Scene& scene) {
   GltfContext ctx;
   ctx.data  = data;
   ctx.scene = &scene;
+  ctx.base_dir = std::filesystem::path(path).parent_path().string();
   ctx.placeholder_material =
       scene.add_material(make_material({0.75f, 0.75f, 0.75f}, 0.0f, 0.9f));
 

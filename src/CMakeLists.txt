@@ -12,6 +12,7 @@ add_library(re_core
   io/gltf/mesh.cpp
   io/gltf/accessor.cpp
   io/gltf/instancing.cpp
+  io/gltf/texture.cpp
   render/cpu/cpu_debug_renderer.cpp
   render/cpu/cpu_path_renderer.cpp
   render/cpu/texture_cache.cpp
