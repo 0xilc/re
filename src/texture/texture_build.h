@@ -11,10 +11,13 @@ inline constexpr uint32_t kTextureChannels = 4;
 
 struct TextureImage {
   std::vector<std::vector<uint8_t>> levels;
-  uint32_t width = 0, height = 0;
-  ColorSpace space = ColorSpace::SRGB;
-  WrapMode wrap_u = WrapMode::Repeat;
-  WrapMode wrap_v = WrapMode::Repeat;
+  uint32_t width    = 0;
+  uint32_t height   = 0;
+  ColorSpace space  = ColorSpace::SRGB;
+  WrapMode wrap_u   = WrapMode::Repeat;
+  WrapMode wrap_v   = WrapMode::Repeat;
+  TexFilter filter  = TexFilter::Trilinear;
+
   bool is_normal_map = false;
   bool ok() const { return !levels.empty(); }
 };

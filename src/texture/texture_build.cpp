@@ -103,6 +103,7 @@ TextureImage build_texture(const TextureDesc& d) {
   out.space = d.color_space;
   out.wrap_u = d.wrap_u;
   out.wrap_v = d.wrap_v;
+  out.filter = d.filter;
   out.is_normal_map = d.is_normal_map;
   out.levels.push_back(std::move(raw.pixels));
 

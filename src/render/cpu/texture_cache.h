@@ -17,6 +17,7 @@ struct CpuTexture {
   ColorSpace space = ColorSpace::SRGB;
   WrapMode wrap_u = WrapMode::Repeat;
   WrapMode wrap_v = WrapMode::Repeat;
+  TexFilter filter = TexFilter::Trilinear;
 
   bool ok() const { return level_count > 0; }
 };

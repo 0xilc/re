@@ -42,6 +42,7 @@ void TextureCache::commit(const std::vector<TextureDesc>& descs) {
     tex.space       = image.space;
     tex.wrap_u      = image.wrap_u;
     tex.wrap_v      = image.wrap_v;
+    tex.filter      = image.filter;
 
     uint32_t offset = 0;
     for (uint8_t l = 0; l < tex.level_count; ++l) {
