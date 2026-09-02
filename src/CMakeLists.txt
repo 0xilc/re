@@ -14,6 +14,7 @@ add_library(re_core
   io/gltf/instancing.cpp
   render/cpu/cpu_debug_renderer.cpp
   render/cpu/cpu_path_renderer.cpp
+  render/cpu/texture_cache.cpp
   driver/offline_driver.cpp
   scene/scene_builder.cpp
   scene/mesh.cpp
