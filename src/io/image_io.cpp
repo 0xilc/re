@@ -9,6 +9,12 @@
 
 namespace re {
 namespace {
+// stbi_failure_reason() is null until stb has actually failed once.
+const char* failure_reason() {
+  const char* reason = stbi_failure_reason();
+  return reason ? reason : "unknown";
+}
+
 ImageData finish(uint8_t* p, int w, int h) {
   ImageData img;
   if (!p) return img;
@@ -23,7 +29,7 @@ ImageData finish(uint8_t* p, int w, int h) {
 ImageData read_image(const std::string& path) {
   int w = 0, h = 0, n = 0;
   uint8_t* p = stbi_load(path.c_str(), &w, &h, &n, 4);   // 4 = RGBA'ya zorla
-  if (!p) log_error("decode_image failed: %s (%s)", path.c_str(), stbi_failure_reason());
+  if (!p) log_error("decode_image failed: {} ({})", path, failure_reason());
   return finish(p, w, h);
 }
 
@@ -31,7 +37,7 @@ ImageData read_image(const uint8_t* bytes, size_t n) {
   if (!bytes || n == 0) return {};
   int w = 0, h = 0, ch = 0;
   uint8_t* p = stbi_load_from_memory(bytes, static_cast<int>(n), &w, &h, &ch, 4);
-  if (!p) log_error("decode_image (embedded) failed: %s", stbi_failure_reason());
+  if (!p) log_error("decode_image (embedded) failed: {}", failure_reason());
   return finish(p, w, h);
 }
 

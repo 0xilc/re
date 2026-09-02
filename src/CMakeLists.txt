@@ -7,6 +7,7 @@ add_library(re_core
   film/film.cpp
   film/tonemap.cpp
   io/image_io.cpp
+  texture/texture_build.cpp
   io/gltf/loader.cpp
   io/gltf/mesh.cpp
   io/gltf/accessor.cpp

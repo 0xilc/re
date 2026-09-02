@@ -16,7 +16,7 @@
 #include "light/cdf_light_build.h"
 #include "scene/scene_builder.h"
 #include "scene/scene_view.h"
-
+#include "core/color.h"
 #include "stb_image.h"
 
 namespace {
