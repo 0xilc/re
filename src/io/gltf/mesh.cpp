@@ -4,6 +4,7 @@
 
 #include "core/log.h"
 #include "io/gltf/accessor.h"
+#include "io/gltf/material.h"
 
 namespace re {
 namespace {
@@ -52,7 +53,7 @@ int load_primitive(GltfContext& ctx, const cgltf_primitive& prim) {
   
   if (mesh.indices.empty()) return kInvalidMesh;
 
-  mesh.mat_ids.assign(mesh.indices.size() / 3, ctx.placeholder_material);
+  mesh.mat_ids.assign(mesh.indices.size() / 3, import_material(ctx, prim.material));
 
   return static_cast<int>(ctx.scene->add_mesh(std::move(mesh)));
 }

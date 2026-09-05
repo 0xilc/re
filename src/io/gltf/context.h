@@ -16,7 +16,8 @@ struct GltfContext {
 
   std::unordered_map<const cgltf_primitive*, int> mesh_ids;
   std::map<std::pair<const cgltf_texture*, ColorSpace>, uint32_t> texture_ids;
-
+  std::unordered_map<const cgltf_material*, uint16_t> material_ids;
+  
   std::string base_dir;
 
   uint16_t placeholder_material = 0;
