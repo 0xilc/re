@@ -41,7 +41,7 @@ RE_HD inline Spectrum li_naive(const Ray &camera_ray,
 
     path.radiance = path.radiance + path.throughput * emitted_radiance(mat, ng, wo);
 
-    const Frame frame = make_frame(ng);
+    const Frame frame = make_frame(si.ns);
     const float3 wo_local = frame.to_local(wo);
     const Bsdf bsdf = make_bsdf(mat, wo_local);
     const float u_lobe = sampler.next_1d();
@@ -53,8 +53,9 @@ RE_HD inline Spectrum li_naive(const Ray &camera_ray,
     path.pdf_bsdf = bs.pdf;
     path.specular_bounce = bs.is_delta;
     const float3 wi = frame.to_world(bs.wi);
-    const float3 offset_n = dot(wi, ng) > 0.0f ? ng : -ng;
-    const float3 origin = offset_ray_origin(si.p, offset_n);
+    if (dot(wi, ng) <= 0.0f) break;
+    
+    const float3 origin = offset_ray_origin(si.p, ng);
     path.ray = make_ray(origin, wi);
 
     const float u_rr = sampler.next_1d();
@@ -88,7 +89,7 @@ RE_HD inline Spectrum li_nee(const Ray& camera_ray, const RayCone& camera_cone,
       path.radiance = path.radiance + path.throughput * emitted_radiance(mat, ng, wo);
     }
 
-    const Frame frame = make_frame(ng);
+    const Frame frame = make_frame(si.ns);
     const float3 wo_local = frame.to_local(wo);
     const Bsdf bsdf = make_bsdf(mat, wo_local);
     const float3 pos = si.p;
@@ -105,8 +106,9 @@ RE_HD inline Spectrum li_nee(const Ray& camera_ray, const RayCone& camera_cone,
     path.pdf_bsdf = bs.pdf;
     path.specular_bounce = bs.is_delta;
     const float3 wi = frame.to_world(bs.wi);
-    const float3 offset_n = dot(wi, ng) > 0.0f ? ng : -ng;
-    const float3 origin = offset_ray_origin(pos, offset_n);
+    if (dot(wi, ng) <= 0.0f) break;
+
+    const float3 origin = offset_ray_origin(pos, ng);
     path.ray = make_ray(origin, wi);
 
     const float u_rr = sampler.next_1d();
@@ -127,9 +129,6 @@ RE_HD inline Spectrum li_mis(const Ray& camera_ray, const RayCone& camera_cone, 
   for (path.depth = 0; path.depth < max_depth; ++path.depth) {
     const Hit hit = services.intersect(path.ray);
     if (!is_hit(hit)) break;
-
-    // Koni once hit noktasina tasiniyor; unpack ve sonraki sicrama ayni degeri
-    // kullaniyor. Yuzey egriligi terimi buraya gelecek.
     path.cone = propagate(path.cone, hit.t);
 
     const SurfaceInteraction si = unpack(scene, hit, path.ray, path.cone);
@@ -152,7 +151,7 @@ RE_HD inline Spectrum li_mis(const Ray& camera_ray, const RayCone& camera_cone, 
       path.radiance = path.radiance + path.throughput * emitted * weight;
     }
 
-    const Frame frame = make_frame(ng);
+    const Frame frame = make_frame(si.ns);
     const float3 wo_local = frame.to_local(wo);
     const Bsdf bsdf = make_bsdf(mat, wo_local);
 
@@ -171,8 +170,9 @@ RE_HD inline Spectrum li_mis(const Ray& camera_ray, const RayCone& camera_cone, 
     path.specular_bounce = bs.is_delta;
     
     const float3 wi = frame.to_world(bs.wi);
-    const float3 offset_n = dot(wi, ng) > 0.0f ? ng : -ng;
-    const float3 origin = offset_ray_origin(pos, offset_n);
+    if (dot(wi, ng) <= 0.0f) break;
+
+    const float3 origin = offset_ray_origin(pos, ng);
     path.ray = make_ray(origin, wi);
     prev_ctx = LightSampleContext{pos, ng};
 

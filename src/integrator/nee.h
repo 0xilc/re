@@ -39,11 +39,12 @@ RE_HD inline ShadowRecord nee_propose(const SceneView& scene, const Lights& ligh
 
   const LightSample ls = sample_area_light(scene, lights, LightSampleContext{pos, ng}, u_pick, u_pos);
   if (!(ls.pdf > 0.0f)) return invalid_shadow_record();
+  if (dot(ls.wi, ng) <= 0.0f) return invalid_shadow_record();
 
   const float3 wi_local = frame.to_local(ls.wi);
 
   const Spectrum f = bsdf_eval(bsdf, wo_local, wi_local);
-  const float cos_i = local::abs_cos_theta(wi_local);
+  const float cos_i = local::cos_theta(wi_local);
   if (cos_i <= 0.0f) return invalid_shadow_record();
 
   float weight = 1.0f;
@@ -54,10 +55,8 @@ RE_HD inline ShadowRecord nee_propose(const SceneView& scene, const Lights& ligh
 
   const Spectrum contribution = throughput * f * ls.radiance * (weight * cos_i / ls.pdf);
   if (luminance(contribution) <= 0.0f) return invalid_shadow_record();
-  const float3 offset_n = dot(ls.wi, ng) > 0.0f ? ng : -ng;
-
   ShadowRecord rec;
-  rec.ray = make_ray(offset_ray_origin(pos, offset_n), ls.wi);
+  rec.ray = make_ray(offset_ray_origin(pos, ng), ls.wi);
   rec.ray.tmax = ls.dist * kShadowRayScale;
   rec.contribution = contribution;
   rec.valid = true;
