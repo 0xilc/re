@@ -7,6 +7,7 @@ MeshView make_meshview(const Mesh& mesh) {
   MeshView mv;
   mv.positions = mesh.positions.data();
   mv.normals   = mesh.normals.empty() ? nullptr : mesh.normals.data();
+  mv.tangents  = mesh.tangents.empty() ? nullptr : mesh.tangents.data();
   mv.indices   = mesh.indices.data();
   mv.mat_ids   = mesh.mat_ids.data();
   mv.uvs       = mesh.uvs.empty() ? nullptr : mesh.uvs.data();

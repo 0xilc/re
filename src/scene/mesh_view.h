@@ -12,6 +12,7 @@ namespace re {
 struct MeshView {
   const float3* positions = nullptr;
   const float3*   normals = nullptr;
+  const float4*  tangents = nullptr;
   const uint32_t* indices = nullptr;
   const uint16_t* mat_ids = nullptr;
   const float2*       uvs = nullptr;

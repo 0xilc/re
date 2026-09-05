@@ -27,6 +27,10 @@ int load_primitive(GltfContext& ctx, const cgltf_primitive& prim) {
     mesh.uvs.clear();
   }
 
+  if (!read_vec4(find_attribute(prim, cgltf_attribute_type_tangent), mesh.tangents)) {
+    mesh.tangents.clear();
+  }
+
   if (!mesh.normals.empty() && mesh.normals.size() != mesh.positions.size()) {
     log_error("gltf: NORMAL count {} does not match POSITION count {}", mesh.normals.size(),
               mesh.positions.size());
@@ -37,6 +41,17 @@ int load_primitive(GltfContext& ctx, const cgltf_primitive& prim) {
     log_error("gltf: TEXCOORD_0 count {} does not match POSITION count {}", mesh.uvs.size(),
               mesh.positions.size());
     mesh.uvs.clear();
+  }
+
+  if (!mesh.tangents.empty() && mesh.tangents.size() != mesh.positions.size()) {
+    log_error("gltf: TANGENT count {} does not match POSITION count {}", mesh.tangents.size(),
+              mesh.positions.size());
+    mesh.tangents.clear();
+  }
+
+  if (!mesh.tangents.empty() && mesh.uvs.empty()) {
+    log_error("gltf: primitive has TANGENT but no TEXCOORD_0, dropping tangents");
+    mesh.tangents.clear();
   }
 
   if (!read_indices(prim, mesh.positions.size(), mesh.indices)) {
