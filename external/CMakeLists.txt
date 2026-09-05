@@ -44,3 +44,12 @@ if(MSVC)
 else()
   target_compile_options(cgltf PRIVATE "-w")
 endif()
+
+# --- MIKKTSPACE ---------------------------------------------------------------
+add_library(mikktspace STATIC mikktspace/mikktspace.c)
+target_include_directories(mikktspace SYSTEM PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/mikktspace)
+if(MSVC)
+  target_compile_options(mikktspace PRIVATE "/W0")
+else()
+  target_compile_options(mikktspace PRIVATE "-w")
+endif()
