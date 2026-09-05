@@ -36,6 +36,23 @@ RE_HD inline Frame make_frame(const float3& n) {
   return f;
 }
 
+RE_HD inline Frame make_frame(const float3& n,
+                              const float3& tangent,
+                              float bitangent_sign) {
+  Frame f;
+  f.n = n;
+
+  const float3 s = tangent - n * dot(n, tangent);
+  if (length_squared(s) < 1e-12f) {
+    return make_frame(n);
+  }
+
+  f.s = normalize(s);
+  f.t = bitangent_sign * cross(n, f.s);
+
+  return f;
+}
+
 // Operate on vectors that are in local space 
 namespace local {
   RE_HD inline float cos_theta(const float3& w)     { return w.z; }

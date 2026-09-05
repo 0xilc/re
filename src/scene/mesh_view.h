@@ -54,4 +54,12 @@ RE_HD inline float3 interpolate_normal(const MeshView& m, int prim_id, float u, 
   return normalize(barycentric(m.normals[idx0], m.normals[idx1], m.normals[idx2], u, v));
 }
 
+RE_HD inline float4 interpolate_tangent(const MeshView& m, int prim_id, float u, float v) {
+  const float4 t0 = m.tangents[m.indices[3 * prim_id + 0]];
+  const float4 t1 = m.tangents[m.indices[3 * prim_id + 1]];
+  const float4 t2 = m.tangents[m.indices[3 * prim_id + 2]];
+
+  return float4{barycentric(t0.xyz, t1.xyz, t2.xyz, u, v), t0.w};
+}
+
 }

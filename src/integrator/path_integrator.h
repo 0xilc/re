@@ -12,6 +12,7 @@
 #include "scene/scene_view.h"
 #include "light/area_light.h"
 #include "shading/evaluated_material.h"
+#include "shading/normal_map.h"
 #include "shading/surface_interaction.h"
 
 namespace re {
@@ -135,8 +136,9 @@ RE_HD inline Spectrum li_mis(const Ray& camera_ray, const RayCone& camera_cone, 
 
     const float3 ng = si.backface ? -si.ng : si.ng;
     const float3 wo = -path.ray.dir;
-    const EvaluatedMaterial mat =
-        evaluate_material(scene.materials[si.mat_id], si, services);
+
+    const Material&         material = scene.materials[si.mat_id];
+    const EvaluatedMaterial mat      = evaluate_material(material, si, services);
 
     const Spectrum emitted = emitted_radiance(mat, ng, wo);
     if (luminance(emitted) > 0.0f) {
@@ -151,7 +153,29 @@ RE_HD inline Spectrum li_mis(const Ray& camera_ray, const RayCone& camera_cone, 
       path.radiance = path.radiance + path.throughput * emitted * weight;
     }
 
-    const Frame frame = make_frame(si.ns);
+    float3 ns = si.ns;
+
+    if (material.normal_tex != kNoTexture) {
+      const Instance& inst = scene.geometry.instances[si.inst_id];
+      const MeshView& mesh = scene.geometry.meshes[inst.mesh_id];
+
+      if (mesh.tangents != nullptr) {
+        const float4 tangent =
+            interpolate_tangent(mesh, static_cast<int>(si.prim_id), hit.u, hit.v);
+
+        float3 t = transform_vector(inst.to_world, tangent.xyz);
+        t = t - si.ns * dot(si.ns, t);
+
+        if (length_squared(t) > 1e-12f) {
+          const Frame  tangent_frame = make_frame(si.ns, t, tangent.w);
+          const float4 texel = services.sample_texture(material.normal_tex, si.uv, si.lod);
+
+          ns = apply_normal_map(texel, material.normal_scale, tangent_frame);
+        }
+      }
+    }
+
+    const Frame frame = make_frame(ns);
     const float3 wo_local = frame.to_local(wo);
     const Bsdf bsdf = make_bsdf(mat, wo_local);
 

@@ -29,12 +29,13 @@ struct alignas(64) Material {
   float     metallic;
   float     roughness;
   float     ior;
+  float     normal_scale;
   uint32_t  base_color_tex;
   uint32_t  metallic_roughness_tex;
   uint32_t  normal_tex;
   uint32_t  emissive_tex;
   int8_t    priority;
-  uint8_t   reserved[11];
+  uint8_t   reserved[7];
 
   RE_HD inline bool is_emissive() const {
     return emission.x > 0.0f || emission.y > 0.0f || emission.z > 0.0f; 
@@ -55,6 +56,7 @@ RE_HD inline Material make_material(const Spectrum& base_color,
   m.metallic                = metallic;
   m.roughness               = roughness;
   m.ior                     = 1.5f;
+  m.normal_scale            = 1.0f;
   m.base_color_tex          = kNoTexture;
   m.metallic_roughness_tex  = kNoTexture;
   m.normal_tex              = kNoTexture;

@@ -34,6 +34,8 @@ uint16_t import_material(GltfContext& ctx, const cgltf_material* material) {
 
   if (material->has_ior) out.ior = material->ior.ior;
 
+  out.normal_scale = material->normal_texture.scale;
+
   if (material->has_emissive_strength) {
     out.emission = out.emission * material->emissive_strength.emissive_strength;
   }
