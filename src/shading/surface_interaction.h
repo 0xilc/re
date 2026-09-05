@@ -58,7 +58,7 @@ RE_HD inline SurfaceInteraction unpack(const SceneView& sv, const Hit& hit, cons
 
     const float delta = triangle_lod_constant(mesh.uvs[i0], mesh.uvs[i1], mesh.uvs[i2],
                                               double_area);
-    si.lod = cone_lod(delta, propagate(cone, hit.t), si.ng, ray.dir);
+    si.lod = cone_lod(delta, cone, si.ng, ray.dir);
   }
   
   return si;

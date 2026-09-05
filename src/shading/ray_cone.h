@@ -39,4 +39,11 @@ RE_HD inline float cone_lod(float lod_constant, const RayCone& cone, const float
   return lod_constant + log2f(width / cos_theta);
 }
 
+inline RayCone make_camera_cone(float spread_angle) {
+  return RayCone {
+    .width = 0.0f,
+    .spread = spread_angle
+  };
+}
+
 } // namespace re

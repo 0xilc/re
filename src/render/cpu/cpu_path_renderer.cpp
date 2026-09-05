@@ -3,6 +3,7 @@
 #include "core/sampler.h"
 #include "integrator/path_integrator.h"
 #include "parallel/scheduler.h"
+#include "shading/ray_cone.h"
 
 namespace re {
 
@@ -11,6 +12,7 @@ void CpuPathRenderer::render(const PinholeParams& camera, Film& film) const {
   const int height = film.height();
   const int spp = settings_.spp;
   const float inv_spp = 1.0f / static_cast<float>(spp);
+  const RayCone cone = make_camera_cone(camera.pixel_spread_angle);
 
   parallel_tiles(*pool_, width, height, [&](const Tile& tile) {
     for (int y = tile.y0; y < tile.y1; ++y) {
@@ -29,7 +31,7 @@ void CpuPathRenderer::render(const PinholeParams& camera, Film& film) const {
               sum = sum + li_nee(ray, scene_, lights_, services_, sampler, settings_.max_depth);
               break;
             case IntegratorMode::Mis:
-              sum = sum + li_mis(ray, scene_, lights_, services_, sampler, settings_.max_depth);
+              sum = sum + li_mis(ray, cone, scene_, lights_, services_, sampler, settings_.max_depth);
               break;
           }
         }

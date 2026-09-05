@@ -10,6 +10,7 @@
 #include "light/cdf_light_build.h"
 #include "render/cpu/cpu_services.h"
 #include "render/cpu/texture_cache.h"
+#include "shading/ray_cone.h"
 #include "scene/scene_builder.h"
 
 // Naive, NEE and MIS are three estimators of the same integral. If a pdf, a
@@ -102,6 +103,8 @@ TEST_CASE("integrator agreement: nee and mis converge where naive converges") {
   const re::PinholeParams camera = re::make_pinhole(
       {0.0f, 0.0f, 1.4f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, 45.0f, kResolution, kResolution);
 
+  const re::RayCone camera_cone = re::make_camera_cone(camera.pixel_spread_angle);
+
   const Rendered naive = render_mean(camera, [&](const re::Ray& r, re::Sampler& s) {
     return re::li_naive(r, view, services, s, kMaxDepth);
   });
@@ -109,7 +112,7 @@ TEST_CASE("integrator agreement: nee and mis converge where naive converges") {
     return re::li_nee(r, view, selector, services, s, kMaxDepth);
   });
   const Rendered mis = render_mean(camera, [&](const re::Ray& r, re::Sampler& s) {
-    return re::li_mis(r, view, selector, services, s, kMaxDepth);
+    return re::li_mis(r, camera_cone, view, selector, services, s, kMaxDepth);
   });
 
   REQUIRE(naive.luminance > 0.0);

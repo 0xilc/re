@@ -63,7 +63,7 @@ void CpuDebugRenderer::render(const PinholeParams &camera, Film &film) const
           .width = 0.0f,
           .spread = camera.pixel_spread_angle
         };
-        const SurfaceInteraction si = unpack(scene_, hit, ray, cone);
+        const SurfaceInteraction si = unpack(scene_, hit, ray, propagate(cone, hit.t));
 
         Spectrum color;
         switch (mode_)

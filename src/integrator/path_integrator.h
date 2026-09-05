@@ -10,11 +10,10 @@
 #include "material/bsdf.h"
 #include "material/material_factory.h"
 #include "scene/scene_view.h"
-#include "light/cdf_light_selector.h"
 #include "light/area_light.h"
+#include "shading/surface_interaction.h"
 
-namespace re
-{
+namespace re {
 
 template <Services S>
 RE_HD inline Spectrum li_naive(const Ray &camera_ray,
@@ -108,21 +107,27 @@ RE_HD inline Spectrum li_nee(const Ray& camera_ray, const SceneView& scene,
 }
 
 template <Services S, LightSelector Lights>
-RE_HD inline Spectrum li_mis(const Ray& camera_ray, const SceneView& scene,
+RE_HD inline Spectrum li_mis(const Ray& camera_ray, const RayCone& camera_cone, const SceneView& scene,
                             const Lights& lights, const S& services, 
                             Sampler& sampler, int max_depth) 
 {
-  PathState path = make_path_state(camera_ray);
+  PathState path = make_path_state(camera_ray, camera_cone);
   LightSampleContext prev_ctx{camera_ray.origin, -camera_ray.dir};
 
   for (path.depth = 0; path.depth < max_depth; ++path.depth) {
     const Hit hit = services.intersect(path.ray);
     if (!is_hit(hit)) break;
 
-    const Triangle tri = scene.triangle_at(hit.instance_id, hit.primitive_id);
-    const float3 ng = tri.geometric_normal();
+    // Koni once hit noktasina tasiniyor; unpack ve sonraki sicrama ayni degeri
+    // kullaniyor. Yuzey egriligi terimi buraya gelecek.
+    path.cone = propagate(path.cone, hit.t);
+
+    const SurfaceInteraction si = unpack(scene, hit, path.ray, path.cone);
+
+    const float3 ng = si.backface ? -si.ng : si.ng;
     const float3 wo = -path.ray.dir;
-    const Material& mat = scene.material_at(hit.instance_id, hit.primitive_id);
+    const Material& mat = scene.materials[si.mat_id];
+
     const Spectrum emitted = emitted_radiance(mat, ng, wo);
     if (luminance(emitted) > 0.0f) {
       float weight = 1.0f;
@@ -140,7 +145,7 @@ RE_HD inline Spectrum li_mis(const Ray& camera_ray, const SceneView& scene,
     const float3 wo_local = frame.to_local(wo);
     const Bsdf bsdf = make_bsdf(mat, wo_local);
 
-    const float3 pos = tri.get_point(hit.u, hit.v);
+    const float3 pos = si.p;
 
     const ShadowRecord rec = nee_propose(scene, lights, bsdf, frame, pos, ng, wo_local, path.throughput, sampler, true);
     nee_resolve(rec, services, path.radiance);
@@ -166,4 +171,4 @@ RE_HD inline Spectrum li_mis(const Ray& camera_ray, const SceneView& scene,
 
   return path.radiance;
 }
-}
+} // namespace re

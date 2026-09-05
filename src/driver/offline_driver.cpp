@@ -17,6 +17,7 @@
 #include "scene/scene_view.h"
 #include "light/cdf_light_build.h"
 #include "io/gltf/loader.h"
+#include "render/cpu/cpu_path_renderer.h"
 
 namespace re {
 
@@ -57,13 +58,13 @@ bool run_offline(const RenderSettings& settings) {
     textures.commit(scene.texture_descs);
 
     const CpuServices services(accel, textures);
-    // const CpuPathRenderer path_renderer(scene_view, lights.selector(), services, pool,
-    //                                     settings.path_tracer);
-    const CpuDebugRenderer debug_renderer(scene_view, services, DebugMode::BaseColor, pool);
+    const CpuPathRenderer path_renderer(scene_view, lights.selector(), services, pool,
+                                        settings.path_tracer);
+    // const CpuDebugRenderer debug_renderer(scene_view, services, DebugMode::BaseColor, pool);
     Film film(settings.width, settings.height);
 
     const auto t0 = std::chrono::steady_clock::now();
-    debug_renderer.render(camera, film);
+    path_renderer.render(camera, film);
     const auto t1 = std::chrono::steady_clock::now();
 
     log_info("Rendered {}x{} in {:.3f} seconds.", settings.width, settings.height,
