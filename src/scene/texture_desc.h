@@ -20,8 +20,6 @@ struct TextureDesc {
   WrapMode        wrap_u = WrapMode::Repeat;
   WrapMode        wrap_v = WrapMode::Repeat;
   TexFilter       filter = TexFilter::Trilinear;
-  
-  bool is_normal_map = false;
 };
 
 }  // namespace re

@@ -68,8 +68,7 @@ const char* image_name(const cgltf_texture& texture) {
 
 } // namespace 
 
-uint32_t import_texture(GltfContext& ctx, const cgltf_texture_view& view, ColorSpace space,
-                        bool is_normal_map) {
+uint32_t import_texture(GltfContext& ctx, const cgltf_texture_view& view, ColorSpace space) {
   if (view.texture == nullptr) return kNoTexture;
 
   const cgltf_texture& texture = *view.texture;
@@ -100,7 +99,6 @@ uint32_t import_texture(GltfContext& ctx, const cgltf_texture_view& view, ColorS
   TextureDesc desc;
   desc.name           = image_name(texture);
   desc.color_space    = space;
-  desc.is_normal_map  = is_normal_map;
 
   if (texture.sampler != nullptr) {
     desc.wrap_u = to_wrap(texture.sampler->wrap_s);

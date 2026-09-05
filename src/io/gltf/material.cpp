@@ -40,7 +40,7 @@ uint16_t import_material(GltfContext& ctx, const cgltf_material* material) {
 
   out.base_color_tex = import_texture(ctx, pbr.base_color_texture, ColorSpace::SRGB);
   out.metallic_roughness_tex = import_texture(ctx, pbr.metallic_roughness_texture, ColorSpace::Linear);
-  out.normal_tex = import_texture(ctx, material->normal_texture, ColorSpace::Linear, true);
+  out.normal_tex = import_texture(ctx, material->normal_texture, ColorSpace::Linear);
   out.emissive_tex = import_texture(ctx, material->emissive_texture, ColorSpace::SRGB);
 
   if (material->occlusion_texture.texture != nullptr) {

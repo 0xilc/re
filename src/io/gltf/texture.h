@@ -8,6 +8,6 @@
 
 namespace re {
 
-uint32_t import_texture(GltfContext& ctx, const cgltf_texture_view& view, ColorSpace space, bool is_normal_map = false);
+uint32_t import_texture(GltfContext& ctx, const cgltf_texture_view& view, ColorSpace space);
 
 } // namespace re

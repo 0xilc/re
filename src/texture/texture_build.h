@@ -18,7 +18,6 @@ struct TextureImage {
   WrapMode wrap_v   = WrapMode::Repeat;
   TexFilter filter  = TexFilter::Trilinear;
 
-  bool is_normal_map = false;
   bool ok() const { return !levels.empty(); }
 };
 

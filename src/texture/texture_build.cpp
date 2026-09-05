@@ -59,12 +59,6 @@ std::vector<uint8_t> downsample(const std::vector<uint8_t>& src, uint32_t src_w,
   return dst;
 }
 
-void flip_green(std::vector<uint8_t>& rgba) {
-  for (size_t i = 1; i < rgba.size(); i += kTextureChannels) {
-    rgba[i] = static_cast<uint8_t>(255 - rgba[i]);
-  }
-}
-
 void build_mip_chain(TextureImage& tex) {
   if (!tex.ok() || tex.width == 0 || tex.height == 0) return;
 
@@ -104,10 +98,7 @@ TextureImage build_texture(const TextureDesc& d) {
   out.wrap_u = d.wrap_u;
   out.wrap_v = d.wrap_v;
   out.filter = d.filter;
-  out.is_normal_map = d.is_normal_map;
   out.levels.push_back(std::move(raw.pixels));
-
-  if (d.is_normal_map) flip_green(out.levels[0]);
   build_mip_chain(out);
 
   return out;
