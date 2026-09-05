@@ -106,10 +106,10 @@ TEST_CASE("integrator agreement: nee and mis converge where naive converges") {
   const re::RayCone camera_cone = re::make_camera_cone(camera.pixel_spread_angle);
 
   const Rendered naive = render_mean(camera, [&](const re::Ray& r, re::Sampler& s) {
-    return re::li_naive(r, view, services, s, kMaxDepth);
+    return re::li_naive(r, camera_cone, view, services, s, kMaxDepth);
   });
   const Rendered nee = render_mean(camera, [&](const re::Ray& r, re::Sampler& s) {
-    return re::li_nee(r, view, selector, services, s, kMaxDepth);
+    return re::li_nee(r, camera_cone, view, selector, services, s, kMaxDepth);
   });
   const Rendered mis = render_mean(camera, [&](const re::Ray& r, re::Sampler& s) {
     return re::li_mis(r, camera_cone, view, selector, services, s, kMaxDepth);

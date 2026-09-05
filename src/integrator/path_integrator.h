@@ -11,28 +11,33 @@
 #include "material/bsdf_build.h"
 #include "scene/scene_view.h"
 #include "light/area_light.h"
+#include "shading/evaluated_material.h"
 #include "shading/surface_interaction.h"
 
 namespace re {
 
 template <Services S>
 RE_HD inline Spectrum li_naive(const Ray &camera_ray,
+                                const RayCone &camera_cone,
                                 const SceneView &scene,
                                 const S &services,
                                 Sampler &sampler,
                                 int max_depth)
 {
-  PathState path = make_path_state(camera_ray);
+  PathState path = make_path_state(camera_ray, camera_cone);
 
   for (path.depth = 0; path.depth < max_depth; ++path.depth) {
     const Hit hit = services.intersect(path.ray);
     if (!is_hit(hit)) break;
 
-    const Triangle tri = scene.triangle_at(hit.instance_id, hit.primitive_id);
-    const float3    ng = tri.geometric_normal();
-    const float3    wo = -path.ray.dir;
+    path.cone = propagate(path.cone, hit.t);
+
+    const SurfaceInteraction si = unpack(scene, hit, path.ray, path.cone);
+
+    const float3 ng = si.backface ? -si.ng : si.ng;
+    const float3 wo = -path.ray.dir;
     const EvaluatedMaterial mat =
-        scene.material_at(hit.instance_id, hit.primitive_id).evaluated();
+        evaluate_material(scene.materials[si.mat_id], si, services);
 
     path.radiance = path.radiance + path.throughput * emitted_radiance(mat, ng, wo);
 
@@ -48,9 +53,8 @@ RE_HD inline Spectrum li_naive(const Ray &camera_ray,
     path.pdf_bsdf = bs.pdf;
     path.specular_bounce = bs.is_delta;
     const float3 wi = frame.to_world(bs.wi);
-    const float3 p = tri.get_point(hit.u, hit.v);
     const float3 offset_n = dot(wi, ng) > 0.0f ? ng : -ng;
-    const float3 origin = offset_ray_origin(p, offset_n);
+    const float3 origin = offset_ray_origin(si.p, offset_n);
     path.ray = make_ray(origin, wi);
 
     const float u_rr = sampler.next_1d();
@@ -61,21 +65,25 @@ RE_HD inline Spectrum li_naive(const Ray &camera_ray,
 }
 
 template <Services S, LightSelector Lights>
-RE_HD inline Spectrum li_nee(const Ray& camera_ray, const SceneView& scene,
-                            const Lights& lights, const S& services, 
-                            Sampler& sampler, int max_depth) 
+RE_HD inline Spectrum li_nee(const Ray& camera_ray, const RayCone& camera_cone,
+                            const SceneView& scene,
+                            const Lights& lights, const S& services,
+                            Sampler& sampler, int max_depth)
 {
-  PathState path = make_path_state(camera_ray);
+  PathState path = make_path_state(camera_ray, camera_cone);
   for (path.depth = 0; path.depth < max_depth; ++path.depth) {
     const Hit hit = services.intersect(path.ray);
     if (!is_hit(hit)) break;
 
-    const Triangle tri = scene.triangle_at(hit.instance_id, hit.primitive_id);
-    const float3    ng = tri.geometric_normal();
-    const float3    wo = -path.ray.dir;
+    path.cone = propagate(path.cone, hit.t);
+
+    const SurfaceInteraction si = unpack(scene, hit, path.ray, path.cone);
+
+    const float3 ng = si.backface ? -si.ng : si.ng;
+    const float3 wo = -path.ray.dir;
     const EvaluatedMaterial mat =
-        scene.material_at(hit.instance_id, hit.primitive_id).evaluated();
-    
+        evaluate_material(scene.materials[si.mat_id], si, services);
+
     if (path.specular_bounce) {
       path.radiance = path.radiance + path.throughput * emitted_radiance(mat, ng, wo);
     }
@@ -83,7 +91,7 @@ RE_HD inline Spectrum li_nee(const Ray& camera_ray, const SceneView& scene,
     const Frame frame = make_frame(ng);
     const float3 wo_local = frame.to_local(wo);
     const Bsdf bsdf = make_bsdf(mat, wo_local);
-    const float3 pos = tri.get_point(hit.u, hit.v);
+    const float3 pos = si.p;
     
     const ShadowRecord rec = nee_propose(scene, lights, bsdf, frame, pos, ng, wo_local, path.throughput, sampler, false);
     nee_resolve(rec, services, path.radiance);
@@ -128,7 +136,8 @@ RE_HD inline Spectrum li_mis(const Ray& camera_ray, const RayCone& camera_cone, 
 
     const float3 ng = si.backface ? -si.ng : si.ng;
     const float3 wo = -path.ray.dir;
-    const EvaluatedMaterial mat = scene.materials[si.mat_id].evaluated();
+    const EvaluatedMaterial mat =
+        evaluate_material(scene.materials[si.mat_id], si, services);
 
     const Spectrum emitted = emitted_radiance(mat, ng, wo);
     if (luminance(emitted) > 0.0f) {

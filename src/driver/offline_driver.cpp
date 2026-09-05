@@ -29,9 +29,9 @@ bool run_offline(const RenderSettings& settings) {
     }
     // scene = make_cornell_scene();
     
-    // const uint16_t lamp = scene.add_material(
-    //     make_material({0.0f, 0.0f, 0.0f}, 0.0f, 1.0f, {30.0f, 30.0f, 30.0f}));
-    // scene.add_quad({-1, 3, -1}, {1, 3, -1}, {1, 3, 1}, {-1, 3, 1}, lamp);
+    const uint16_t lamp = scene.add_material(
+        make_material({0.0f, 0.0f, 0.0f}, 0.0f, 1.0f, {30.0f, 30.0f, 30.0f}));
+    scene.add_quad({-1, 2, -1}, {1, 2, -1}, {1, 2, 1}, {-1, 2, 1}, lamp);
 
     SceneGeometryView scene_geometry = scene.make_geometry_view();
     EmbreeAccel accel;
@@ -49,7 +49,7 @@ bool run_offline(const RenderSettings& settings) {
     log_info("using {} threads", pool.thead_count());
 
     const PinholeParams camera =
-        make_pinhole(float3{0.0f, 0.0f, 3.0f},
+        make_pinhole(float3{0.0f, 0.0f, 4.0f},
                      float3{0.0f, 0.0f, 0.0f},
                      float3{0.0f, 1.0f, 0.0f},
                      45.0f, settings.width, settings.height);
@@ -60,7 +60,7 @@ bool run_offline(const RenderSettings& settings) {
     const CpuServices services(accel, textures);
     const CpuPathRenderer path_renderer(scene_view, lights.selector(), services, pool,
                                         settings.path_tracer);
-    // const CpuDebugRenderer debug_renderer(scene_view, services, DebugMode::BaseColor, pool);
+    // const CpuDebugRenderer debug_renderer(scene_view, services, DebugMode::Normals, pool);
     Film film(settings.width, settings.height);
 
     const auto t0 = std::chrono::steady_clock::now();
