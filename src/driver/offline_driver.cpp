@@ -11,7 +11,6 @@
 #include "film/tonemap.h"
 #include "io/image_io.h"
 #include "parallel/thread_pool.h"
-#include "render/cpu/cpu_path_renderer.h"
 #include "render/cpu/cpu_debug_renderer.h"
 #include "render/cpu/texture_cache.h"
 #include "scene/scene_builder.h"
@@ -57,10 +56,10 @@ bool run_offline(const RenderSettings& settings) {
     TextureCache textures;
     textures.commit(scene.texture_descs);
 
-    const CpuServices     services(accel, textures);
+    const CpuServices services(accel, textures);
     // const CpuPathRenderer path_renderer(scene_view, lights.selector(), services, pool,
     //                                     settings.path_tracer);
-    const CpuDebugRenderer debug_renderer(scene_view, accel, DebugMode::UV, pool);
+    const CpuDebugRenderer debug_renderer(scene_view, services, DebugMode::BaseColor, pool);
     Film film(settings.width, settings.height);
 
     const auto t0 = std::chrono::steady_clock::now();

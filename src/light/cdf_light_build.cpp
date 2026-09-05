@@ -4,6 +4,7 @@
 #include <cassert>
 
 #include "core/spectrum.h"
+#include "scene/material.h"
 
 namespace re {
 
@@ -21,7 +22,8 @@ CdfLightData build_cdf_lights(const SceneView& scene) {
     for (int prim_id = 0; prim_id < mesh.triangle_count; ++prim_id) {
       const Material& mat = scene.material_at(inst_id, prim_id);
       if (!mat.is_emissive()) continue;
-
+      if (mat.emissive_tex != kNoTexture) continue;
+      
       const float area = scene.triangle_at(inst_id, prim_id).area();
       if (!(area > 0.0f)) continue;
 

@@ -51,7 +51,7 @@ void CpuDebugRenderer::render(const PinholeParams &camera, Film &film) const
       for (int x = tile.x0; x < tile.x1; ++x)
       {
         const Ray ray = generate_ray(camera, x, y, {0.5f, 0.5f});
-        const Hit hit = accel_.intersect(ray);
+        const Hit hit = services_.intersect(ray);
 
         if (!is_hit(hit))
         {
@@ -72,6 +72,11 @@ void CpuDebugRenderer::render(const PinholeParams &camera, Film &film) const
             break;
           case DebugMode::Lambert:
             color = shade_lambert(si.ng, ray);
+            break;
+          case DebugMode::BaseColor:
+            const Material& mat = scene_.materials[si.mat_id];
+            const float4 texel = services_.sample_texture(mat.base_color_tex, si.uv, 0.0f);
+            color = mat.base_color * texel.xyz;
             break;
         }
 
