@@ -14,6 +14,7 @@ add_library(re_core
   io/gltf/instancing.cpp
   io/gltf/texture.cpp
   io/gltf/material.cpp
+  io/gltf/helpers/mesh_tangents.cpp
   render/cpu/cpu_debug_renderer.cpp
   render/cpu/cpu_path_renderer.cpp
   render/cpu/texture_cache.cpp
@@ -33,6 +34,7 @@ target_link_libraries(re_core PUBLIC
   stb_image
   embree
   cgltf
+  mikktspace
 )
 
 add_executable(re main.cpp)

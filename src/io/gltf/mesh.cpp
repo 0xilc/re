@@ -4,6 +4,7 @@
 
 #include "core/log.h"
 #include "io/gltf/accessor.h"
+#include "io/gltf/helpers/mesh_tangents.h"
 #include "io/gltf/material.h"
 
 namespace re {
@@ -68,7 +69,15 @@ int load_primitive(GltfContext& ctx, const cgltf_primitive& prim) {
   
   if (mesh.indices.empty()) return kInvalidMesh;
 
-  mesh.mat_ids.assign(mesh.indices.size() / 3, import_material(ctx, prim.material));
+  const uint16_t material_id = import_material(ctx, prim.material);
+
+  if (ctx.scene->materials[material_id].normal_tex == kNoTexture) {
+    mesh.tangents.clear();
+  } else if (mesh.tangents.empty()) {
+    generate_tangents(mesh);
+  }
+
+  mesh.mat_ids.assign(mesh.indices.size() / 3, material_id);
 
   return static_cast<int>(ctx.scene->add_mesh(std::move(mesh)));
 }
