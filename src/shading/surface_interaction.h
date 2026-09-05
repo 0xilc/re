@@ -30,11 +30,12 @@ RE_HD inline SurfaceInteraction unpack(const SceneView& sv, const Hit& hit, cons
   SurfaceInteraction si;
   si.inst_id = hit.instance_id;
   si.prim_id = hit.primitive_id;
-  si.p = ray.origin + ray.dir * hit.t;
   si.uv = interpolate_uv(mesh, hit.primitive_id, hit.u, hit.v);
   si.mat_id = mesh.mat_ids[hit.primitive_id];
-
+  
   const Triangle tri = transform_triangle(inst.to_world, get_triangle(mesh, hit.primitive_id));
+  si.p = tri.get_point(hit.u, hit.v);
+  
   const float3 cv          = cross(tri.v1 - tri.v0, tri.v2 - tri.v0);
   const float double_area  = length(cv);
   const float3 ng          = double_area > 0.0f ? cv / double_area : float3(0.0f, 1.0f, 0.0f);
