@@ -8,7 +8,7 @@
 #include "integrator/path_state.h"
 #include "integrator/russian_roulette.h"
 #include "material/bsdf.h"
-#include "material/material_factory.h"
+#include "material/bsdf_build.h"
 #include "scene/scene_view.h"
 #include "light/area_light.h"
 #include "shading/surface_interaction.h"
@@ -31,7 +31,8 @@ RE_HD inline Spectrum li_naive(const Ray &camera_ray,
     const Triangle tri = scene.triangle_at(hit.instance_id, hit.primitive_id);
     const float3    ng = tri.geometric_normal();
     const float3    wo = -path.ray.dir;
-    const Material& mat = scene.material_at(hit.instance_id, hit.primitive_id);
+    const EvaluatedMaterial mat =
+        scene.material_at(hit.instance_id, hit.primitive_id).evaluated();
 
     path.radiance = path.radiance + path.throughput * emitted_radiance(mat, ng, wo);
 
@@ -72,7 +73,8 @@ RE_HD inline Spectrum li_nee(const Ray& camera_ray, const SceneView& scene,
     const Triangle tri = scene.triangle_at(hit.instance_id, hit.primitive_id);
     const float3    ng = tri.geometric_normal();
     const float3    wo = -path.ray.dir;
-    const Material& mat = scene.material_at(hit.instance_id, hit.primitive_id);
+    const EvaluatedMaterial mat =
+        scene.material_at(hit.instance_id, hit.primitive_id).evaluated();
     
     if (path.specular_bounce) {
       path.radiance = path.radiance + path.throughput * emitted_radiance(mat, ng, wo);
@@ -126,7 +128,7 @@ RE_HD inline Spectrum li_mis(const Ray& camera_ray, const RayCone& camera_cone, 
 
     const float3 ng = si.backface ? -si.ng : si.ng;
     const float3 wo = -path.ray.dir;
-    const Material& mat = scene.materials[si.mat_id];
+    const EvaluatedMaterial mat = scene.materials[si.mat_id].evaluated();
 
     const Spectrum emitted = emitted_radiance(mat, ng, wo);
     if (luminance(emitted) > 0.0f) {

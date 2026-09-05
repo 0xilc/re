@@ -5,7 +5,7 @@
 #include "material/bsdf.h"
 #include "material/bxdf_lambertian.h"
 #include "material/bxdf_microfacet.h"
-#include "material/material_factory.h"
+#include "material/bsdf_build.h"
 
 namespace bxdftest {
 
@@ -20,7 +20,7 @@ struct TestLobe {
 };
 
 inline re::Bsdf composite_bsdf(const TestLobe& l, const re::float3& wo) {
-  return re::make_bsdf(l.material, wo);
+  return re::make_bsdf(l.material.evaluated(), wo);
 }
 
 inline re::Spectrum eval(const TestLobe& l, const re::float3& wo, const re::float3& wi) {
