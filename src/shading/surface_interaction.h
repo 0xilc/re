@@ -7,7 +7,8 @@
 #include "core/ray.h"
 #include "core/math.h"
 #include "scene/scene_view.h"
-#include "core/log.h"
+#include "shading/ray_cone.h"
+
 namespace re {
 
 struct SurfaceInteraction {
@@ -22,7 +23,7 @@ struct SurfaceInteraction {
   bool backface     = false;
 };
 
-RE_HD inline SurfaceInteraction unpack(const SceneView& sv, const Hit& hit, const Ray& ray) {
+RE_HD inline SurfaceInteraction unpack(const SceneView& sv, const Hit& hit, const Ray& ray, const RayCone& cone = RayCone()) {
   const Instance& inst = sv.geometry.instances[hit.instance_id];
   const MeshView& mesh = sv.geometry.meshes[inst.mesh_id];
   
@@ -34,17 +35,29 @@ RE_HD inline SurfaceInteraction unpack(const SceneView& sv, const Hit& hit, cons
   si.mat_id = mesh.mat_ids[hit.primitive_id];
 
   const Triangle tri = transform_triangle(inst.to_world, get_triangle(mesh, hit.primitive_id));
-  float3 ng = tri.geometric_normal();
+  const float3 cv          = cross(tri.v1 - tri.v0, tri.v2 - tri.v0);
+  const float double_area  = length(cv);
+  const float3 ng          = double_area > 0.0f ? cv / double_area : float3(0.0f, 1.0f, 0.0f);
 
   si.backface = dot(ng, ray.dir) > 0.0f;
-  si.ng = si.backface ? -ng : ng;
+  si.ng       = si.backface ? -ng : ng;
 
   if (mesh.normals) {
-  const float3 n_local = interpolate_normal(mesh, hit.primitive_id, hit.u, hit.v);
-  const float3 ns = normalize(transform_normal(inst.to_local, n_local));
-  si.ns = (dot(ns, si.ng) < 0.0f) ? -ns : ns;
+    const float3 n_local = interpolate_normal(mesh, hit.primitive_id, hit.u, hit.v);
+    const float3 ns = normalize(transform_normal(inst.to_local, n_local));
+    si.ns = (dot(ns, si.ng) < 0.0f) ? -ns : ns;
   } else {
     si.ns = si.ng;
+  }
+
+  if (mesh.uvs != nullptr) {
+    const uint32_t i0 = mesh.indices[3 * hit.primitive_id + 0];
+    const uint32_t i1 = mesh.indices[3 * hit.primitive_id + 1];
+    const uint32_t i2 = mesh.indices[3 * hit.primitive_id + 2];
+
+    const float delta = triangle_lod_constant(mesh.uvs[i0], mesh.uvs[i1], mesh.uvs[i2],
+                                              double_area);
+    si.lod = cone_lod(delta, propagate(cone, hit.t), si.ng, ray.dir);
   }
   
   return si;

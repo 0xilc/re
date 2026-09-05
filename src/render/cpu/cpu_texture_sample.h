@@ -108,4 +108,10 @@ inline float4 sample_texture(const uint8_t* texels, const CpuTexture& tex, float
 
   return fetch_trilinear(texels, tex, level, uv);
 }
+
+inline float texture_mip_level(const CpuTexture& tex, float lod) {
+  const float texels = static_cast<float>(tex.width) * static_cast<float>(tex.height);
+  return lod + 0.5f * std::log2(texels);
+}
+
 } // namespace re

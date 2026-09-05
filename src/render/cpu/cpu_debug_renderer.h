@@ -8,7 +8,7 @@
 
 namespace re {
 
-enum class DebugMode { UV, Normals, Lambert, BaseColor }; 
+enum class DebugMode { UV, Normals, Lambert, BaseColor, Lod }; 
 
 class CpuDebugRenderer {
 public:

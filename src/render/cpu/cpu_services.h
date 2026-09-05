@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 #include "core/types.h"
 #include "accel/accel.h"
 #include "integrator/device_services.h"
@@ -24,7 +26,8 @@ public:
   float4 sample_texture(uint32_t tex_id, float2 uv, float lod) const {
     if (tex_id >= textures_.texture_count()) return float4{1.0f, 1.0f, 1.0f, 1.0f};
     
-    return re::sample_texture(textures_.texels(), textures_.textures()[tex_id], uv, lod);
+    const CpuTexture& tex = textures_.textures()[tex_id];
+    return re::sample_texture(textures_.texels(), tex, uv, texture_mip_level(tex, lod));
   }
 
 private:

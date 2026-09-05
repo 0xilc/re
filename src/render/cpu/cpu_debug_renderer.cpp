@@ -6,6 +6,7 @@
 #include "material/bsdf.h"
 #include "material/material_factory.h"
 #include "parallel/scheduler.h"
+#include "shading/ray_cone.h"
 #include "shading/surface_interaction.h"
 
 
@@ -58,26 +59,39 @@ void CpuDebugRenderer::render(const PinholeParams &camera, Film &film) const
           film.set_pixel(x, y, missColor);
           continue;
         }
-        
-        const SurfaceInteraction si = unpack(scene_, hit, ray);
+        const RayCone cone = RayCone{
+          .width = 0.0f,
+          .spread = camera.pixel_spread_angle
+        };
+        const SurfaceInteraction si = unpack(scene_, hit, ray, cone);
 
         Spectrum color;
         switch (mode_)
         {
-          case DebugMode::UV:
+          case DebugMode::UV: {
             color = Spectrum{si.uv.x, si.uv.y, 0.0f};
             break;
-          case DebugMode::Normals:
+          }
+          case DebugMode::Normals: {
             color = si.ns * 0.5f + 0.5f;
             break;
-          case DebugMode::Lambert:
+          }
+          case DebugMode::Lambert: {
             color = shade_lambert(si.ng, ray);
             break;
-          case DebugMode::BaseColor:
+          }
+          case DebugMode::BaseColor: {
             const Material& mat = scene_.materials[si.mat_id];
-            const float4 texel = services_.sample_texture(mat.base_color_tex, si.uv, 0.0f);
+            const float4 texel = services_.sample_texture(mat.base_color_tex, si.uv, si.lod);
             color = mat.base_color * texel.xyz;
             break;
+          }
+          case DebugMode::Lod: {
+            const RayCone at_hit = propagate(cone, hit.t);
+            const float t = clamp(at_hit.width / (cone.spread * 5.0f), 0.0f, 1.0f);
+            color = Spectrum{t, 1.0f - t, 0.0f};
+            break;
+          }
         }
 
         film.set_pixel(x, y, color);

@@ -18,6 +18,7 @@ struct PinholeParams {
   float3 up_scaled;
   float inv_width;
   float inv_height;
+  float pixel_spread_angle;
 };
 
 inline PinholeParams make_pinhole(const float3& look_from,
@@ -42,6 +43,7 @@ inline PinholeParams make_pinhole(const float3& look_from,
   c.up_scaled = up * tan_half;
   c.inv_width = 1.0f / float(width);
   c.inv_height = 1.0f / float(height);
+  c.pixel_spread_angle = std::atan(2.0f * tan_half / static_cast<float>(height));
   
   return c;
 }
