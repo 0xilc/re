@@ -54,7 +54,7 @@ TEST_CASE("sampler: histogram is flat") {
     for (int idx = 0; idx < kSamples; ++idx) {
         re::Sampler s(17, 23, idx);
         const int   bin = static_cast<int>(s.next_1d() * kBins);
-        ++bins[bin];
+        ++bins[static_cast<size_t>(bin)];
     }
  
     // Chi-square against a uniform expectation. 31 dof, p = 0.001 -> ~62.5.

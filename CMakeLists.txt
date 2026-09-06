@@ -13,6 +13,7 @@ target_compile_options(re_warnings INTERFACE
   -Wpedantic
   -Wshadow
   -Wconversion
+  -Wsign-conversion
 )
 
 enable_testing()

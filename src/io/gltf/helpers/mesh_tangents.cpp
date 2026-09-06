@@ -10,7 +10,9 @@
 namespace re {
 namespace {
 
-int corner_of(int face, int vert) { return face * 3 + vert; }
+size_t corner_of(int face, int vert) {
+  return static_cast<size_t>(face) * 3 + static_cast<size_t>(vert);
+}
 
 Mesh& mesh_of(const SMikkTSpaceContext* ctx) {
   return *static_cast<Mesh*>(ctx->m_pUserData);

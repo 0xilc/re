@@ -20,7 +20,7 @@ ImageData finish(uint8_t* p, int w, int h) {
   if (!p) return img;
   img.width  = static_cast<uint32_t>(w);
   img.height = static_cast<uint32_t>(h);
-  img.pixels.assign(p, p + static_cast<size_t>(w) * h * 4);
+  img.pixels.assign(p, p + static_cast<size_t>(w) * static_cast<size_t>(h) * 4);
   stbi_image_free(p);
   return img;
 }

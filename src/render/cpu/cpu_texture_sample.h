@@ -12,11 +12,15 @@
 
 namespace re {
 
-inline int wrap_index(int i, int n, WrapMode mode) {
-  if (mode == WrapMode::Clamp) return i < 0 ? 0 : (i >= n ? n - 1 : i);
+inline uint32_t wrap_index(int i, uint32_t n, WrapMode mode) {
+  const int size = static_cast<int>(n);
 
-  const int m = i % n;
-  return m < 0 ? m + n : m;
+  if (mode == WrapMode::Clamp) {
+    return static_cast<uint32_t>(i < 0 ? 0 : (i >= size ? size - 1 : i));
+  }
+
+  const int m = i % size;
+  return static_cast<uint32_t>(m < 0 ? m + size : m);
 }
 
 inline float decode_texel(uint8_t v, bool srgb) {
@@ -24,13 +28,13 @@ inline float decode_texel(uint8_t v, bool srgb) {
 }
 
 inline float4 fetch_nearest(const uint8_t* texels, const CpuTexture& tex, uint8_t level, float2 uv) {
-  const int w = static_cast<int>(mip_size(tex.width, level));
-  const int h = static_cast<int>(mip_size(tex.height, level));
+  const uint32_t w = mip_size(tex.width, level);
+  const uint32_t h = mip_size(tex.height, level);
   const uint8_t* base = texels + tex.base + tex.mip_offsets[level];
 
-  const int x = wrap_index(static_cast<int>(std::floor(uv.x * static_cast<float>(w))), w, tex.wrap_u);
-  const int y = wrap_index(static_cast<int>(std::floor(uv.y * static_cast<float>(h))), h, tex.wrap_v);
-  
+  const uint32_t x = wrap_index(static_cast<int>(std::floor(uv.x * static_cast<float>(w))), w, tex.wrap_u);
+  const uint32_t y = wrap_index(static_cast<int>(std::floor(uv.y * static_cast<float>(h))), h, tex.wrap_v);
+
   const uint8_t* texel = base + (static_cast<size_t>(y) * w + x) * kTextureChannels;
   const bool   is_srgb = tex.space == ColorSpace::SRGB;
   
@@ -43,8 +47,8 @@ inline float4 fetch_nearest(const uint8_t* texels, const CpuTexture& tex, uint8_
 }
 
 inline float4 fetch_bilinear(const uint8_t* texels, const CpuTexture& tex, uint8_t level, float2 uv) {
-  const int      w    = static_cast<int>(mip_size(tex.width, level));
-  const int      h    = static_cast<int>(mip_size(tex.height, level));
+  const uint32_t w    = mip_size(tex.width, level);
+  const uint32_t h    = mip_size(tex.height, level);
   const uint8_t* base = texels + tex.base + tex.mip_offsets[level];
 
   const float x = uv.x * static_cast<float>(w) - 0.5f;
@@ -56,10 +60,10 @@ inline float4 fetch_bilinear(const uint8_t* texels, const CpuTexture& tex, uint8
   const int ix = static_cast<int>(std::floor(x));
   const int iy = static_cast<int>(std::floor(y));
 
-  const int x0 = wrap_index(ix,     w, tex.wrap_u);
-  const int x1 = wrap_index(ix + 1, w, tex.wrap_u);
-  const int y0 = wrap_index(iy,     h, tex.wrap_v);
-  const int y1 = wrap_index(iy + 1, h, tex.wrap_v);
+  const uint32_t x0 = wrap_index(ix,     w, tex.wrap_u);
+  const uint32_t x1 = wrap_index(ix + 1, w, tex.wrap_u);
+  const uint32_t y0 = wrap_index(iy,     h, tex.wrap_v);
+  const uint32_t y1 = wrap_index(iy + 1, h, tex.wrap_v);
 
   const size_t row0 = static_cast<size_t>(y0) * w;
   const size_t row1 = static_cast<size_t>(y1) * w;
@@ -67,7 +71,7 @@ inline float4 fetch_bilinear(const uint8_t* texels, const CpuTexture& tex, uint8
   const bool srgb = tex.space == ColorSpace::SRGB;
 
   float c[4];
-  for (int ch = 0; ch < 4; ++ch) {
+  for (uint32_t ch = 0; ch < 4; ++ch) {
     const bool curved = srgb && ch < 3;
 
     const float t00 = decode_texel(base[(row0 + x0) * kTextureChannels + ch], curved);

@@ -25,7 +25,10 @@ struct LitScene {
     lights = re::build_cdf_lights(view);
   }
 
-  float pmf_of(int index) const { return lights.cdf[index + 1] - lights.cdf[index]; }
+  float pmf_of(int index) const {
+    const size_t i = static_cast<size_t>(index);
+    return lights.cdf[i + 1] - lights.cdf[i];
+  }
 };
 
 re::Transform translate_of(float x) {

@@ -61,7 +61,7 @@ std::vector<double> integrate_pdf(const bxdftest::TestLobe& lobe, const re::floa
 
     for (int i = 0; i < kMuBins; ++i) {
         for (int j = 0; j < kPhiBins; ++j) {
-            expected[i * kPhiBins + j] =
+            expected[static_cast<size_t>(i * kPhiBins + j)] =
                 integrate_bin(lobe, wo, i * dmu, (i + 1) * dmu, j * dphi, (j + 1) * dphi, lower);
         }
     }
@@ -103,7 +103,7 @@ ChiSquareResult run_chi_square(const bxdftest::TestLobe& lobe, const re::float3&
         mu_bin  = std::min(mu_bin, kMuBins - 1);
         phi_bin = std::min(phi_bin, kPhiBins - 1);
 
-        ++observed[mu_bin * kPhiBins + phi_bin];
+        ++observed[static_cast<size_t>(mu_bin * kPhiBins + phi_bin)];
         ++binned;
     }
 

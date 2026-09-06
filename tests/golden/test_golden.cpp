@@ -88,7 +88,7 @@ TEST_CASE("golden: cornell matches the stored reference") {
     REQUIRE(h == kHeight);
 
     const std::vector<uint8_t> rendered = render_cornell();
-    REQUIRE(rendered.size() == static_cast<size_t>(w) * h * 3);
+    REQUIRE(rendered.size() == static_cast<size_t>(w) * static_cast<size_t>(h) * 3);
 
     double sum_sq   = 0.0;
     double max_diff = 0.0;
@@ -96,7 +96,7 @@ TEST_CASE("golden: cornell matches the stored reference") {
 
     for (size_t i = 0; i < rendered.size() / 3; ++i) {
         double pixel_sq = 0.0;
-        for (int c = 0; c < 3; ++c) {
+        for (size_t c = 0; c < 3; ++c) {
             const float la = re::srgb_to_linear(reference[i * 3 + c] / 255.0f);
             const float lb = re::srgb_to_linear(rendered[i * 3 + c] / 255.0f);
             const double d = static_cast<double>(la) - lb;
