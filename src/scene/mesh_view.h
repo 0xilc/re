@@ -16,15 +16,15 @@ struct MeshView {
   const uint32_t* indices = nullptr;
   const uint16_t* mat_ids = nullptr;
   const float2*       uvs = nullptr;
-  int vertex_count        = 0;
-  int triangle_count      = 0;
+  uint32_t   vertex_count = 0;
+  uint32_t triangle_count = 0;
 
-  RE_HD inline uint16_t get_material_id(int prim_id) const {
+  RE_HD inline uint16_t get_material_id(uint32_t prim_id) const {
     return mat_ids[prim_id];
   }
 };
 
-RE_HD inline Triangle get_triangle(const MeshView& view, int prim_id) {
+RE_HD inline Triangle get_triangle(const MeshView& view, uint32_t prim_id) {
   uint32_t i0 = view.indices[3 * prim_id + 0];
   uint32_t i1 = view.indices[3 * prim_id + 1];
   uint32_t i2 = view.indices[3 * prim_id + 2];
@@ -36,7 +36,7 @@ RE_HD inline Triangle get_triangle(const MeshView& view, int prim_id) {
   };
 }
 
-RE_HD inline float2 interpolate_uv(const MeshView& m, int prim_id, float u, float v) {
+RE_HD inline float2 interpolate_uv(const MeshView& m, uint32_t prim_id, float u, float v) {
   if (!m.uvs) return float2{0.0f, 0.0f};
 
   const float2 uv0 = m.uvs[m.indices[3 * prim_id + 0]];
@@ -46,7 +46,7 @@ RE_HD inline float2 interpolate_uv(const MeshView& m, int prim_id, float u, floa
   return barycentric(uv0, uv1, uv2, u, v);
 }
 
-RE_HD inline float3 interpolate_normal(const MeshView& m, int prim_id, float u, float v) {
+RE_HD inline float3 interpolate_normal(const MeshView& m, uint32_t prim_id, float u, float v) {
   const uint32_t idx0 = m.indices[3 * prim_id + 0];
   const uint32_t idx1 = m.indices[3 * prim_id + 1];
   const uint32_t idx2 = m.indices[3 * prim_id + 2];
@@ -54,7 +54,7 @@ RE_HD inline float3 interpolate_normal(const MeshView& m, int prim_id, float u, 
   return normalize(barycentric(m.normals[idx0], m.normals[idx1], m.normals[idx2], u, v));
 }
 
-RE_HD inline float4 interpolate_tangent(const MeshView& m, int prim_id, float u, float v) {
+RE_HD inline float4 interpolate_tangent(const MeshView& m, uint32_t prim_id, float u, float v) {
   const float4 t0 = m.tangents[m.indices[3 * prim_id + 0]];
   const float4 t1 = m.tangents[m.indices[3 * prim_id + 1]];
   const float4 t2 = m.tangents[m.indices[3 * prim_id + 2]];

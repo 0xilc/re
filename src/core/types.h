@@ -1,8 +1,12 @@
 #pragma once
 
+#include <cstdint>
+
 #include "platform.h"
 
 namespace re {
+
+inline constexpr uint32_t INVALID_ID = 0xFFFFFFFFu;
 
 struct alignas(8) float2 {
   float x, y;

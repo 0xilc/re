@@ -33,9 +33,9 @@ re::Transform make_trs(re::float3 t, re::float3 s, float rot_x) {
 re::Scene make_instanced_scene() {
     re::Scene scene = re::make_cornell_scene();
 
-    const int mesh_count = static_cast<int>(scene.meshes.size());
-    for (int i = 0; i < 40; ++i) {
-        re::Sampler sampler(i, 101, 3);
+    const uint32_t mesh_count = static_cast<uint32_t>(scene.meshes.size());
+    for (uint32_t i = 0; i < 40; ++i) {
+        re::Sampler sampler(static_cast<int>(i), 101, 3);
 
         const re::float2 t  = sampler.next_2d();
         const re::float2 s  = sampler.next_2d();
@@ -45,7 +45,7 @@ re::Scene make_instanced_scene() {
         scene.add_instance(make_trs({(t.x - 0.5f) * 0.6f, (t.y - 0.5f) * 0.6f, (tz - 0.5f) * 0.6f},
                                     {0.3f + s.x, 0.3f + s.y, 0.3f + s.x * s.y},
                                     (rx - 0.5f) * 6.2831853f),
-                           static_cast<uint32_t>(i % mesh_count));
+                           i % mesh_count);
     }
 
     return scene;
@@ -86,15 +86,16 @@ std::vector<re::Ray> make_test_rays(const re::Scene& scene, int count) {
         } else {
             // Aim at a point on a real surface, which means going through an
             // instance and back out to world space.
-            const int inst_id = std::min(
-                static_cast<int>(sampler.next_1d() * static_cast<float>(geometry.instance_count)),
-                static_cast<int>(geometry.instance_count) - 1);
+            const uint32_t inst_id = std::min(
+                static_cast<uint32_t>(sampler.next_1d() *
+                                      static_cast<float>(geometry.instance_count)),
+                geometry.instance_count - 1);
             const re::Instance& inst = geometry.instances[inst_id];
             const re::MeshView& mesh = geometry.meshes[inst.mesh_id];
 
-            const int prim =
-                std::min(static_cast<int>(sampler.next_1d() *
-                                          static_cast<float>(mesh.triangle_count)),
+            const uint32_t prim =
+                std::min(static_cast<uint32_t>(sampler.next_1d() *
+                                               static_cast<float>(mesh.triangle_count)),
                          mesh.triangle_count - 1);
             const re::Triangle tri = re::get_triangle(mesh, prim);
 

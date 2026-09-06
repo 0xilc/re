@@ -20,7 +20,7 @@ struct LitScene {
 
     view.geometry       = geometry;
     view.materials      = scene.material_table();
-    view.material_count = static_cast<int>(scene.materials.size());
+    view.material_count = static_cast<uint32_t>(scene.materials.size());
 
     lights = re::build_cdf_lights(view);
   }

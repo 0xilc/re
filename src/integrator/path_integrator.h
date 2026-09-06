@@ -161,7 +161,7 @@ RE_HD inline Spectrum li_mis(const Ray& camera_ray, const RayCone& camera_cone, 
 
       if (mesh.tangents != nullptr) {
         const float4 tangent =
-            interpolate_tangent(mesh, static_cast<int>(si.prim_id), hit.u, hit.v);
+            interpolate_tangent(mesh, si.prim_id, hit.u, hit.v);
 
         float3 t = transform_vector(inst.to_world, tangent.xyz);
         t = t - si.ns * dot(si.ns, t);

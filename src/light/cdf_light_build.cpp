@@ -12,14 +12,12 @@ CdfLightData build_cdf_lights(const SceneView& scene) {
   CdfLightData data;
   std::vector<float> weights;
 
-  // Walking instances then primitives in ascending order leaves refs sorted by
-  // light_key, which is what CdfLightSelector::pmf binary searches.
-  const int instance_count = static_cast<int>(scene.geometry.instance_count);
-  for (int inst_id = 0; inst_id < instance_count; ++inst_id) {
+  const uint32_t instance_count = scene.geometry.instance_count;
+  for (uint32_t inst_id = 0; inst_id < instance_count; ++inst_id) {
     const Instance& inst = scene.geometry.instances[inst_id];
     const MeshView& mesh = scene.geometry.meshes[inst.mesh_id];
 
-    for (int prim_id = 0; prim_id < mesh.triangle_count; ++prim_id) {
+    for (uint32_t prim_id = 0; prim_id < mesh.triangle_count; ++prim_id) {
       const Material& mat = scene.material_at(inst_id, prim_id);
       if (!mat.is_emissive()) continue;
       if (mat.emissive_tex != kNoTexture) continue;

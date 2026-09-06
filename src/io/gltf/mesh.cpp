@@ -10,7 +10,7 @@
 namespace re {
 namespace {
 
-int load_primitive(GltfContext& ctx, const cgltf_primitive& prim) {
+uint32_t load_primitive(GltfContext& ctx, const cgltf_primitive& prim) {
   if (prim.type != cgltf_primitive_type_triangles) return kInvalidMesh;
 
   Mesh mesh;
@@ -79,16 +79,16 @@ int load_primitive(GltfContext& ctx, const cgltf_primitive& prim) {
 
   mesh.mat_ids.assign(mesh.indices.size() / 3, material_id);
 
-  return static_cast<int>(ctx.scene->add_mesh(std::move(mesh)));
+  return ctx.scene->add_mesh(std::move(mesh));
 }
 
 } // namespace
 
-int import_mesh(GltfContext& ctx, const cgltf_primitive& prim) {
+uint32_t import_mesh(GltfContext& ctx, const cgltf_primitive& prim) {
   const auto it = ctx.mesh_ids.find(&prim);
   if (it != ctx.mesh_ids.end()) return it->second;
 
-  const int mesh_id = load_primitive(ctx, prim);
+  const uint32_t mesh_id = load_primitive(ctx, prim);
   ctx.mesh_ids[&prim] = mesh_id;
 
   return mesh_id;

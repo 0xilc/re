@@ -33,11 +33,11 @@ void import_node(GltfContext& ctx, const cgltf_node& node) {
   for (size_t p = 0; p < node.mesh->primitives_count; ++p) {
     const cgltf_primitive& prim = node.mesh->primitives[p];
 
-    const int mesh_id = import_mesh(ctx, prim);
+    const uint32_t mesh_id = import_mesh(ctx, prim);
     if (mesh_id == kInvalidMesh) continue;
 
     for (const Transform& to_world : transforms) {
-      ctx.scene->add_instance(to_world, static_cast<uint32_t>(mesh_id));
+      ctx.scene->add_instance(to_world, mesh_id);
     }
   }
 }

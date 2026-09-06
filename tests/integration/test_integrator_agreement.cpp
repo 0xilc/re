@@ -89,7 +89,7 @@ TEST_CASE("integrator agreement: nee and mis converge where naive converges") {
   re::SceneView view;
   view.geometry       = geometry;
   view.materials      = scene.material_table();
-  view.material_count = static_cast<int>(scene.materials.size());
+  view.material_count = static_cast<uint32_t>(scene.materials.size());
 
   const re::CdfLightData lights = re::build_cdf_lights(view);
   REQUIRE(lights.refs.size() == 2);  // the ceiling, two triangles

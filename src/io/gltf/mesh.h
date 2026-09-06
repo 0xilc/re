@@ -1,13 +1,15 @@
 #pragma once
 
 #include <cgltf.h>
+#include <cstdint>
 
+#include "core/types.h"
 #include "io/gltf/context.h"
 
 namespace re {
 
-constexpr int kInvalidMesh = -1;
+inline constexpr uint32_t kInvalidMesh = INVALID_ID;
 
-int import_mesh(GltfContext& ctx, const cgltf_primitive& prim);
+uint32_t import_mesh(GltfContext& ctx, const cgltf_primitive& prim);
 
 } // namespace re

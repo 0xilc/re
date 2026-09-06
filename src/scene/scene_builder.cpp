@@ -65,10 +65,10 @@ void Scene::add_box(const float3& lo, const float3& hi, uint16_t material_id) {
 
 SceneGeometryView Scene::make_geometry_view() const {
   SceneGeometryView view;
-  view.meshes = mesh_views.data();
-  view.instances = instances.data();
-  view.mesh_count = mesh_views.size();
-  view.instance_count = instances.size();
+  view.meshes         = mesh_views.data();
+  view.instances      = instances.data();
+  view.mesh_count     = static_cast<uint32_t>(mesh_views.size());
+  view.instance_count = static_cast<uint32_t>(instances.size());
   
   return view;
 } 

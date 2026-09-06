@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
     re::SceneView view;
     view.geometry       = geometry;
     view.materials      = scene.material_table();
-    view.material_count = static_cast<int>(scene.materials.size());
+    view.material_count = static_cast<uint32_t>(scene.materials.size());
 
     re::ThreadPool pool(0);
 

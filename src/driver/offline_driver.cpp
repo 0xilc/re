@@ -40,7 +40,7 @@ bool run_offline(const RenderSettings& settings) {
     SceneView scene_view;
     scene_view.geometry       = scene_geometry;
     scene_view.materials      = scene.material_table();
-    scene_view.material_count = static_cast<int>(scene.materials.size());
+    scene_view.material_count = static_cast<uint32_t>(scene.materials.size());
 
     const CdfLightData lights = build_cdf_lights(scene_view);
     log_info("lights: {} emissive primitives", lights.refs.size());

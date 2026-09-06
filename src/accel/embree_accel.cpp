@@ -86,23 +86,23 @@ void EmbreeAccel::build(const SceneGeometryView& geometry) {
   release_scenes();
 
   mesh_scenes_.reserve(geometry.mesh_count);
-  for (size_t mesh_id = 0; mesh_id < geometry.mesh_count; ++mesh_id) {
+  for (uint32_t mesh_id = 0; mesh_id < geometry.mesh_count; ++mesh_id) {
     mesh_scenes_.push_back(build_mesh_scene(device, geometry.meshes[mesh_id]));
   }
 
   RTCScene scene = rtcNewScene(device);
 
-  for (size_t inst_id = 0; inst_id < geometry.instance_count; ++inst_id) {
-    const Instance& inst   = geometry.instances[inst_id];
-    const size_t    mesh_id = static_cast<size_t>(inst.mesh_id);
-    assert(inst.mesh_id >= 0 && mesh_id < geometry.mesh_count);
+  for (uint32_t inst_id = 0; inst_id < geometry.instance_count; ++inst_id) {
+    const Instance& inst    = geometry.instances[inst_id];
+    const uint32_t  mesh_id = inst.mesh_id;
+    assert(mesh_id != INVALID_ID && mesh_id < geometry.mesh_count);
 
     RTCGeometry geom = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_INSTANCE);
     rtcSetGeometryInstancedScene(geom, static_cast<RTCScene>(mesh_scenes_[mesh_id]));
     rtcSetGeometryTransform(geom, 0, RTC_FORMAT_FLOAT3X4_ROW_MAJOR, &inst.to_world);
     rtcCommitGeometry(geom);
 
-    rtcAttachGeometryByID(scene, geom, static_cast<unsigned>(inst_id));
+    rtcAttachGeometryByID(scene, geom, inst_id);
     rtcReleaseGeometry(geom);
   }
 
@@ -123,8 +123,8 @@ Hit EmbreeAccel::intersect(const Ray& ray) const {
   hit.u = rh.hit.u;
   hit.v = rh.hit.v;
 
-  hit.prim_id = static_cast<int>(rh.hit.primID);
-  hit.inst_id  = static_cast<int>(rh.hit.instID[0]);
+  hit.prim_id = rh.hit.primID;
+  hit.inst_id = rh.hit.instID[0];
 
   return hit;
 }

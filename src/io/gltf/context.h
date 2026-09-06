@@ -14,7 +14,7 @@ struct GltfContext {
   const cgltf_data* data  = nullptr;
   Scene*            scene = nullptr;
 
-  std::unordered_map<const cgltf_primitive*, int> mesh_ids;
+  std::unordered_map<const cgltf_primitive*, uint32_t> mesh_ids;
   std::map<std::pair<const cgltf_texture*, ColorSpace>, uint32_t> texture_ids;
   std::unordered_map<const cgltf_material*, uint16_t> material_ids;
   

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <concepts>
 
 #include "core/types.h"
@@ -7,8 +8,8 @@
 namespace re {
 
 struct LightRef {
-  int inst_id;
-  int prim_id;
+  uint32_t inst_id;
+  uint32_t prim_id;
 };
 
 struct LightSampleContext {
