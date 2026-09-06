@@ -19,15 +19,15 @@ struct MeshView {
   int vertex_count        = 0;
   int triangle_count      = 0;
 
-  RE_HD inline uint16_t get_material_id(int primitive_id) const {
-    return mat_ids[primitive_id];
+  RE_HD inline uint16_t get_material_id(int prim_id) const {
+    return mat_ids[prim_id];
   }
 };
 
-RE_HD inline Triangle get_triangle(const MeshView& view, int primitive_id) {
-  uint32_t i0 = view.indices[3 * primitive_id + 0];
-  uint32_t i1 = view.indices[3 * primitive_id + 1];
-  uint32_t i2 = view.indices[3 * primitive_id + 2];
+RE_HD inline Triangle get_triangle(const MeshView& view, int prim_id) {
+  uint32_t i0 = view.indices[3 * prim_id + 0];
+  uint32_t i1 = view.indices[3 * prim_id + 1];
+  uint32_t i2 = view.indices[3 * prim_id + 2];
 
   return {
     view.positions[i0],

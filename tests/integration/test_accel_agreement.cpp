@@ -139,13 +139,13 @@ void check_closest_hit_agreement(const re::Scene& scene, const char* label) {
         }
         if (!re::is_hit(a)) continue;
 
-        if (a.primitive_id != b.primitive_id || a.instance_id != b.instance_id) {
+        if (a.prim_id != b.prim_id || a.inst_id != b.inst_id) {
             ++mismatched_id;
             if (mismatched_id <= 10) {
                 printf("[%s] id mismatch: kind=%zu brute=(inst=%d prim=%d t=%.6f u=%.4f v=%.4f) "
                        "embree=(inst=%d prim=%d t=%.6f u=%.4f v=%.4f) dt=%.2e\n",
-                       label, i % 3, a.instance_id, a.primitive_id, a.t, a.u, a.v,
-                       b.instance_id, b.primitive_id, b.t, b.u, b.v, std::fabs(a.t - b.t));
+                       label, i % 3, a.inst_id, a.prim_id, a.t, a.u, a.v,
+                       b.inst_id, b.prim_id, b.t, b.u, b.v, std::fabs(a.t - b.t));
             }
             continue;
         }
@@ -182,7 +182,7 @@ void check_occlusion_agreement(const re::Scene& scene, const char* label) {
               const re::Hit h = brute.intersect(rays[i]);
               printf("[%s] occ mismatch: brute=%d embree=%d tmax=%.6f hit_t=%.6f prim=%d\n",
                     label, brute.occluded(rays[i]) ? 1 : 0, embree.occluded(rays[i]) ? 1 : 0,
-                    rays[i].tmax, h.t, h.primitive_id);
+                    rays[i].tmax, h.t, h.prim_id);
           }
         };
 

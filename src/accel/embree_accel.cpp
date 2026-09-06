@@ -123,8 +123,8 @@ Hit EmbreeAccel::intersect(const Ray& ray) const {
   hit.u = rh.hit.u;
   hit.v = rh.hit.v;
 
-  hit.primitive_id = static_cast<int>(rh.hit.primID);
-  hit.instance_id  = static_cast<int>(rh.hit.instID[0]);
+  hit.prim_id = static_cast<int>(rh.hit.primID);
+  hit.inst_id  = static_cast<int>(rh.hit.instID[0]);
 
   return hit;
 }

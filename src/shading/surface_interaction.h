@@ -24,16 +24,16 @@ struct SurfaceInteraction {
 };
 
 RE_HD inline SurfaceInteraction make_surface_interaction(const SceneView& sv, const Hit& hit, const Ray& ray, const RayCone& cone = RayCone()) {
-  const Instance& inst = sv.geometry.instances[hit.instance_id];
+  const Instance& inst = sv.geometry.instances[hit.inst_id];
   const MeshView& mesh = sv.geometry.meshes[inst.mesh_id];
   
   SurfaceInteraction si;
-  si.inst_id = hit.instance_id;
-  si.prim_id = hit.primitive_id;
-  si.uv = interpolate_uv(mesh, hit.primitive_id, hit.u, hit.v);
-  si.mat_id = mesh.mat_ids[hit.primitive_id];
+  si.inst_id = hit.inst_id;
+  si.prim_id = hit.prim_id;
+  si.uv = interpolate_uv(mesh, hit.prim_id, hit.u, hit.v);
+  si.mat_id = mesh.mat_ids[hit.prim_id];
   
-  const Triangle tri = transform_triangle(inst.to_world, get_triangle(mesh, hit.primitive_id));
+  const Triangle tri = transform_triangle(inst.to_world, get_triangle(mesh, hit.prim_id));
   si.p = tri.get_point(hit.u, hit.v);
   
   const float3 cv          = cross(tri.v1 - tri.v0, tri.v2 - tri.v0);
@@ -44,7 +44,7 @@ RE_HD inline SurfaceInteraction make_surface_interaction(const SceneView& sv, co
   si.ng       = si.backface ? -ng : ng;
 
   if (mesh.normals) {
-    const float3 n_local = interpolate_normal(mesh, hit.primitive_id, hit.u, hit.v);
+    const float3 n_local = interpolate_normal(mesh, hit.prim_id, hit.u, hit.v);
     const float3 ns = normalize(transform_normal(inst.to_local, n_local));
     si.ns = (dot(ns, si.ng) < 0.0f) ? -ns : ns;
   } else {
@@ -52,9 +52,9 @@ RE_HD inline SurfaceInteraction make_surface_interaction(const SceneView& sv, co
   }
 
   if (mesh.uvs != nullptr) {
-    const uint32_t i0 = mesh.indices[3 * hit.primitive_id + 0];
-    const uint32_t i1 = mesh.indices[3 * hit.primitive_id + 1];
-    const uint32_t i2 = mesh.indices[3 * hit.primitive_id + 2];
+    const uint32_t i0 = mesh.indices[3 * hit.prim_id + 0];
+    const uint32_t i1 = mesh.indices[3 * hit.prim_id + 1];
+    const uint32_t i2 = mesh.indices[3 * hit.prim_id + 2];
 
     const float delta = triangle_lod_constant(mesh.uvs[i0], mesh.uvs[i1], mesh.uvs[i2],
                                               double_area);

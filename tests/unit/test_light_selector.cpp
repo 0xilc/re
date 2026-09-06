@@ -68,7 +68,7 @@ TEST_CASE("light selector: an unlit scene picks nothing") {
 
   const re::LightPick pick = sel.pick(re::LightSampleContext{}, 0.5f);
   CHECK(pick.pmf == 0.0f);
-  CHECK(pick.ref.instance_id == re::INVALID_ID);
+  CHECK(pick.ref.inst_id == re::INVALID_ID);
 }
 
 TEST_CASE("light selector: the cdf is a normalised distribution") {
@@ -114,7 +114,7 @@ TEST_CASE("light selector: pick and pmf agree on every light") {
 
     bool found = false;
     for (int i = 0; i < sel.count; ++i) {
-      if (lit.lights.refs[static_cast<size_t>(i)].instance_id == pick.ref.instance_id &&
+      if (lit.lights.refs[static_cast<size_t>(i)].inst_id == pick.ref.inst_id &&
           lit.lights.refs[static_cast<size_t>(i)].prim_id == pick.ref.prim_id) {
         ++hits[static_cast<size_t>(i)];
         found = true;

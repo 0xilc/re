@@ -41,7 +41,7 @@ RE_HD inline LightSample sample_area_light(const SceneView& scene, const Lights&
   if (!(picked.pmf > 0.0f)) return invalid_light_sample();
 
   const LightRef ref = picked.ref;
-  const Triangle tri = scene.triangle_at(ref.instance_id, ref.prim_id);
+  const Triangle tri = scene.triangle_at(ref.inst_id, ref.prim_id);
   const float2 bary = sample_uniform_triangle(u_pos);
   const float3 p = tri.get_point(bary.x, bary.y);
   const float3 n = tri.geometric_normal();
@@ -52,7 +52,7 @@ RE_HD inline LightSample sample_area_light(const SceneView& scene, const Lights&
   
   const float dist =  sqrtf(dist_sq);
   const float3 wi = to_light * (1.0f / dist);
-  const EvaluatedMaterial mat = scene.material_at(ref.instance_id, ref.prim_id).evaluated();
+  const EvaluatedMaterial mat = scene.material_at(ref.inst_id, ref.prim_id).evaluated();
   const Spectrum L = emitted_radiance(mat, n, -wi);
 
   const float cos_light = dot(n, -wi);
@@ -73,7 +73,7 @@ RE_HD inline float area_light_pdf(const SceneView& scene, const Lights& lights,
   const float pmf = lights.pmf(ctx, ref);
   if (!(pmf > 0.0f)) return 0.0f;
 
-  const Triangle tri = scene.triangle_at(ref.instance_id, ref.prim_id);
+  const Triangle tri = scene.triangle_at(ref.inst_id, ref.prim_id);
   const float area = tri.area();
   if (area <= 0.0f) return 0.0f;
 

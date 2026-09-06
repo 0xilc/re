@@ -145,7 +145,7 @@ RE_HD inline Spectrum li_mis(const Ray& camera_ray, const RayCone& camera_cone, 
       float weight = 1.0f;
 
       if (!path.specular_bounce) {
-        const LightRef ref{hit.instance_id, hit.primitive_id};
+        const LightRef ref{hit.inst_id, hit.prim_id};
         const float pdf_light = area_light_pdf(scene, lights, prev_ctx, ref, hit.u, hit.v);
         weight = power_heuristic(path.pdf_bsdf, pdf_light);
       }

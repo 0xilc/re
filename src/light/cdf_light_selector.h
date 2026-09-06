@@ -9,7 +9,7 @@
 namespace re {
 
 RE_HD inline uint64_t light_key(LightRef ref) {
-  return (static_cast<uint64_t>(static_cast<uint32_t>(ref.instance_id)) << 32) |
+  return (static_cast<uint64_t>(static_cast<uint32_t>(ref.inst_id)) << 32) |
          static_cast<uint32_t>(ref.prim_id);
 }
 

@@ -117,7 +117,7 @@ TEST_CASE("intersect_triangle: parallel ray misses") {
     CHECK_FALSE(re::intersect_triangle(r, kTri, th));
 }
 
-TEST_CASE("BruteAccel: nearest hit wins and misses are encoded in primitive_id") {
+TEST_CASE("BruteAccel: nearest hit wins and misses are encoded in prim_id") {
     // Two parallel triangles; prim 0 at z = -1, prim 1 at z = -2.
     const re::float3 positions[] = {
         {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f, -1.0f}, {0.0f, 1.0f, -1.0f},
@@ -145,13 +145,13 @@ TEST_CASE("BruteAccel: nearest hit wins and misses are encoded in primitive_id")
     SUBCASE("nearest primitive wins regardless of loop order") {
         const re::Hit hit = accel.intersect(ray_toward({0, 0, 0}, {0.25f, 0.25f, -1.0f}));
         REQUIRE(re::is_hit(hit));
-        CHECK(hit.primitive_id == 0);
+        CHECK(hit.prim_id == 0);
         CHECK(hit.t == doctest::Approx(std::sqrt(0.25f * 0.25f * 2.0f + 1.0f)).epsilon(kEps));
     }
 
-    SUBCASE("miss is signalled by primitive_id, never inferred from t") {
+    SUBCASE("miss is signalled by prim_id, never inferred from t") {
         const re::Hit miss = accel.intersect(ray_toward({0, 0, 0}, {5.0f, 5.0f, -1.0f}));
         CHECK_FALSE(re::is_hit(miss));
-        CHECK(miss.primitive_id == re::INVALID_ID);
+        CHECK(miss.prim_id == re::INVALID_ID);
     }
 }

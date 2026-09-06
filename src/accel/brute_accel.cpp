@@ -28,8 +28,8 @@ Hit BruteAccel::intersect(const Ray& ray) const {
       best.t = th.t;
       best.u = th.u;
       best.v = th.v;
-      best.primitive_id = prim_id;
-      best.instance_id  = inst_id;
+      best.prim_id = prim_id;
+      best.inst_id  = inst_id;
     }
   }
 

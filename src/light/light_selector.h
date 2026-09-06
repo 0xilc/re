@@ -7,7 +7,7 @@
 namespace re {
 
 struct LightRef {
-  int instance_id;
+  int inst_id;
   int prim_id;
 };
 
