@@ -33,7 +33,7 @@ RE_HD inline Spectrum li_naive(const Ray &camera_ray,
 
     path.cone = propagate(path.cone, hit.t);
 
-    const SurfaceInteraction si = unpack(scene, hit, path.ray, path.cone);
+    const SurfaceInteraction si = make_surface_interaction(scene, hit, path.ray, path.cone);
 
     const float3 ng = si.backface ? -si.ng : si.ng;
     const float3 wo = -path.ray.dir;
@@ -79,7 +79,7 @@ RE_HD inline Spectrum li_nee(const Ray& camera_ray, const RayCone& camera_cone,
 
     path.cone = propagate(path.cone, hit.t);
 
-    const SurfaceInteraction si = unpack(scene, hit, path.ray, path.cone);
+    const SurfaceInteraction si = make_surface_interaction(scene, hit, path.ray, path.cone);
 
     const float3 ng = si.backface ? -si.ng : si.ng;
     const float3 wo = -path.ray.dir;
@@ -132,7 +132,7 @@ RE_HD inline Spectrum li_mis(const Ray& camera_ray, const RayCone& camera_cone, 
     if (!is_hit(hit)) break;
     path.cone = propagate(path.cone, hit.t);
 
-    const SurfaceInteraction si = unpack(scene, hit, path.ray, path.cone);
+    const SurfaceInteraction si = make_surface_interaction(scene, hit, path.ray, path.cone);
 
     const float3 ng = si.backface ? -si.ng : si.ng;
     const float3 wo = -path.ray.dir;

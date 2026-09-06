@@ -23,7 +23,7 @@ struct SurfaceInteraction {
   bool backface     = false;
 };
 
-RE_HD inline SurfaceInteraction unpack(const SceneView& sv, const Hit& hit, const Ray& ray, const RayCone& cone = RayCone()) {
+RE_HD inline SurfaceInteraction make_surface_interaction(const SceneView& sv, const Hit& hit, const Ray& ray, const RayCone& cone = RayCone()) {
   const Instance& inst = sv.geometry.instances[hit.instance_id];
   const MeshView& mesh = sv.geometry.meshes[inst.mesh_id];
   
