@@ -20,7 +20,7 @@ struct TestLobe {
 };
 
 inline re::Bsdf composite_bsdf(const TestLobe& l, const re::float3& wo) {
-  return re::make_bsdf(l.material.evaluated(), wo);
+  return re::make_bsdf(l.material, wo);
 }
 
 inline re::Spectrum eval(const TestLobe& l, const re::float3& wo, const re::float3& wi) {

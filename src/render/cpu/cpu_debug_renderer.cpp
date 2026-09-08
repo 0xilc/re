@@ -16,12 +16,12 @@ namespace {
   const float3 kLightDir = normalize(float3{0.3f, 1.0f, 0.4f});
   const Spectrum kLightRadiance{3.0f, 2.9f, 2.7f};
   
-  const EvaluatedMaterial kDebugMaterial = make_material(
+  const Material kDebugMaterial = make_material(
     Spectrum{0.5f, 0.7f, 0.3f},
     0.5f,
     0.0f,
     make_empty_spectrum()
-  ).evaluated();
+  );
 
   Spectrum shade_lambert(const float3& normal, const Ray& ray)
   {

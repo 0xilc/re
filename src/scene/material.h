@@ -11,18 +11,6 @@ namespace re {
 
 inline constexpr uint32_t kNoTexture = 0xFFFFFFFFu;
 
-struct EvaluatedMaterial {
-  Spectrum base_color;
-  Spectrum emission;
-  float    metallic;
-  float    roughness;
-  float    ior;
-
-  RE_HD bool is_emissive() const {
-    return emission.x > 0.0f || emission.y > 0.0f || emission.z > 0.0f;
-  }
-};
-
 struct alignas(64) Material {
   Spectrum  base_color;
   Spectrum  emission;
@@ -39,10 +27,6 @@ struct alignas(64) Material {
 
   RE_HD inline bool is_emissive() const {
     return emission.x > 0.0f || emission.y > 0.0f || emission.z > 0.0f; 
-  }
-  
-  RE_HD inline EvaluatedMaterial evaluated() const {
-    return EvaluatedMaterial{base_color, emission, metallic, roughness, ior};
   }
 };
 
@@ -66,7 +50,7 @@ RE_HD inline Material make_material(const Spectrum& base_color,
   return m;
 }
 
-RE_HD inline Spectrum emitted_radiance(const EvaluatedMaterial& m, 
+RE_HD inline Spectrum emitted_radiance(const Material& m, 
   const float3& n_light, const float3& w) {
     return dot(n_light, w) > 0.0f ? m.emission : make_empty_spectrum();
 }

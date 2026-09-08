@@ -18,7 +18,7 @@
 namespace re {
 
 template <Services S>
-RE_HD inline Spectrum li_naive(const Ray &camera_ray,
+RE_HD inline Spectrum li_naive( const Ray &camera_ray,
                                 const RayCone &camera_cone,
                                 const SceneView &scene,
                                 const S &services,
@@ -37,7 +37,7 @@ RE_HD inline Spectrum li_naive(const Ray &camera_ray,
 
     const float3 ng = si.backface ? -si.ng : si.ng;
     const float3 wo = -path.ray.dir;
-    const EvaluatedMaterial mat =
+    const Material mat =
         evaluate_material(scene.materials[si.mat_id], si, services);
 
     path.radiance = path.radiance + path.throughput * emitted_radiance(mat, ng, wo);
@@ -67,10 +67,13 @@ RE_HD inline Spectrum li_naive(const Ray &camera_ray,
 }
 
 template <Services S, LightSelector Lights>
-RE_HD inline Spectrum li_nee(const Ray& camera_ray, const RayCone& camera_cone,
-                            const SceneView& scene,
-                            const Lights& lights, const S& services,
-                            Sampler& sampler, int max_depth)
+RE_HD inline Spectrum li_nee( const Ray& camera_ray, 
+                              const RayCone& camera_cone,
+                              const SceneView& scene,
+                              const Lights& lights, 
+                              const S& services,
+                              Sampler& sampler, 
+                              int max_depth)
 {
   PathState path = make_path_state(camera_ray, camera_cone);
   for (path.depth = 0; path.depth < max_depth; ++path.depth) {
@@ -83,7 +86,7 @@ RE_HD inline Spectrum li_nee(const Ray& camera_ray, const RayCone& camera_cone,
 
     const float3 ng = si.backface ? -si.ng : si.ng;
     const float3 wo = -path.ray.dir;
-    const EvaluatedMaterial mat =
+    const Material mat =
         evaluate_material(scene.materials[si.mat_id], si, services);
 
     if (path.specular_bounce) {
@@ -120,9 +123,13 @@ RE_HD inline Spectrum li_nee(const Ray& camera_ray, const RayCone& camera_cone,
 }
 
 template <Services S, LightSelector Lights>
-RE_HD inline Spectrum li_mis(const Ray& camera_ray, const RayCone& camera_cone, const SceneView& scene,
-                            const Lights& lights, const S& services, 
-                            Sampler& sampler, int max_depth) 
+RE_HD inline Spectrum li_mis( const Ray& camera_ray, 
+                              const RayCone& camera_cone, 
+                              const SceneView& scene,
+                              const Lights& lights, 
+                              const S& services, 
+                              Sampler& sampler, 
+                              int max_depth) 
 {
   PathState path = make_path_state(camera_ray, camera_cone);
   LightSampleContext prev_ctx{camera_ray.origin, -camera_ray.dir};
@@ -133,14 +140,11 @@ RE_HD inline Spectrum li_mis(const Ray& camera_ray, const RayCone& camera_cone, 
     path.cone = propagate(path.cone, hit.t);
 
     const SurfaceInteraction si = make_surface_interaction(scene, hit, path.ray, path.cone);
-
-    const float3 ng = si.backface ? -si.ng : si.ng;
     const float3 wo = -path.ray.dir;
 
-    const Material&         material = scene.materials[si.mat_id];
-    const EvaluatedMaterial mat      = evaluate_material(material, si, services);
+    const Material& mat = evaluate_material(scene.materials[si.mat_id], si, services);
 
-    const Spectrum emitted = emitted_radiance(mat, ng, wo);
+    const Spectrum emitted = emitted_radiance(mat, si.ng, wo);
     if (luminance(emitted) > 0.0f) {
       float weight = 1.0f;
 
@@ -155,7 +159,7 @@ RE_HD inline Spectrum li_mis(const Ray& camera_ray, const RayCone& camera_cone, 
 
     float3 ns = si.ns;
 
-    if (material.normal_tex != kNoTexture) {
+    if (mat.normal_tex != kNoTexture) {
       const Instance& inst = scene.geometry.instances[si.inst_id];
       const MeshView& mesh = scene.geometry.meshes[inst.mesh_id];
 
@@ -168,9 +172,9 @@ RE_HD inline Spectrum li_mis(const Ray& camera_ray, const RayCone& camera_cone, 
 
         if (length_squared(t) > 1e-12f) {
           const Frame  tangent_frame = make_frame(si.ns, t, tangent.w);
-          const float4 texel = services.sample_texture(material.normal_tex, si.uv, si.lod);
+          const float4 texel = services.sample_texture(mat.normal_tex, si.uv, si.lod);
 
-          ns = apply_normal_map(texel, material.normal_scale, tangent_frame);
+          ns = apply_normal_map(texel, mat.normal_scale, tangent_frame);
         }
       }
     }
@@ -181,7 +185,7 @@ RE_HD inline Spectrum li_mis(const Ray& camera_ray, const RayCone& camera_cone, 
 
     const float3 pos = si.p;
 
-    const ShadowRecord rec = nee_propose(scene, lights, bsdf, frame, pos, ng, wo_local, path.throughput, sampler, true);
+    const ShadowRecord rec = nee_propose(scene, lights, bsdf, frame, pos, si.ng, wo_local, path.throughput, sampler, true);
     nee_resolve(rec, services, path.radiance);
     
     const float u_lobe = sampler.next_1d();
@@ -194,11 +198,11 @@ RE_HD inline Spectrum li_mis(const Ray& camera_ray, const RayCone& camera_cone, 
     path.specular_bounce = bs.is_delta;
     
     const float3 wi = frame.to_world(bs.wi);
-    if (dot(wi, ng) <= 0.0f) break;
+    if (dot(wi, si.ng) <= 0.0f) break;
 
-    const float3 origin = offset_ray_origin(pos, ng);
+    const float3 origin = offset_ray_origin(pos, si.ng);
     path.ray = make_ray(origin, wi);
-    prev_ctx = LightSampleContext{pos, ng};
+    prev_ctx = LightSampleContext{pos, si.ng};
 
     const float u_rr = sampler.next_1d();
     if (!russian_roulette(path.throughput, path.depth, u_rr)) break;

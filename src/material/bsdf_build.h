@@ -9,7 +9,7 @@ namespace re {
 
 inline constexpr float kDielectricF0 = 0.04f;
 
-RE_HD inline Bsdf make_bsdf(const EvaluatedMaterial& mat, const float3& wo) {
+RE_HD inline Bsdf make_bsdf(const Material& mat, const float3& wo) {
   Bsdf bsdf;
 
   const Spectrum diffuse_albedo = mat.base_color * (1.0f - mat.metallic);
