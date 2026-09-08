@@ -53,9 +53,11 @@ RE_HD inline LightSample sample_area_light(const SceneView& scene, const Lights&
   const float dist =  sqrtf(dist_sq);
   const float3 wi = to_light * (1.0f / dist);
   const Material mat = scene.material_at(ref.inst_id, ref.prim_id);
-  const Spectrum L = emitted_radiance(mat, n, -wi);
-
+  
   const float cos_light = dot(n, -wi);
+  const bool backface = cos_light <= 0.0f;
+  const Spectrum L = emitted_radiance(mat, backface);
+
   const float area = tri.area();
   if (area <= 0.0f) return invalid_light_sample();
 

@@ -3,6 +3,7 @@
 #include "core/frame.h"
 #include "core/sampler.h"
 #include "core/ray_offset.h"
+#include "core/spectrum.h"
 #include "integrator/device_services.h"
 #include "integrator/nee.h"
 #include "integrator/path_state.h"
@@ -37,7 +38,7 @@ RE_HD inline Spectrum li_naive( const Ray &camera_ray,
 
     const Material mat = evaluate_material(scene.materials[si.mat_id], si, services);
 
-    path.radiance = path.radiance + path.throughput * emitted_radiance(mat, si.ng, si.wo);
+    path.radiance = path.radiance + path.throughput * emitted_radiance(mat, si.backface);
 
     const ShadingContext shading = make_shading_context(services, si, mat);
 
@@ -82,7 +83,7 @@ RE_HD inline Spectrum li_nee( const Ray& camera_ray,
     const Material mat = evaluate_material(scene.materials[si.mat_id], si, services);
 
     if (path.specular_bounce) {
-      path.radiance = path.radiance + path.throughput * emitted_radiance(mat, si.ng, si.wo);
+      path.radiance = path.radiance + path.throughput * emitted_radiance(mat, si.backface);
     }
 
     const ShadingContext shading = make_shading_context(services, si, mat);
@@ -133,7 +134,7 @@ RE_HD inline Spectrum li_mis( const Ray& camera_ray,
 
     const Material mat = evaluate_material(scene.materials[si.mat_id], si, services);
 
-    const Spectrum emitted = emitted_radiance(mat, si.ng, si.wo);
+    const Spectrum emitted = emitted_radiance(mat, si.backface);
     if (luminance(emitted) > 0.0f) {
       float weight = 1.0f;
 

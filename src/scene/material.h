@@ -50,9 +50,8 @@ RE_HD inline Material make_material(const Spectrum& base_color,
   return m;
 }
 
-RE_HD inline Spectrum emitted_radiance(const Material& m, 
-  const float3& n_light, const float3& w) {
-    return dot(n_light, w) > 0.0f ? m.emission : make_empty_spectrum();
+RE_HD inline Spectrum emitted_radiance(const Material& m, bool backface) {
+  return backface ? make_empty_spectrum() : m.emission;
 }
 
 }
