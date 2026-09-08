@@ -42,6 +42,21 @@ RE_HD inline float3 transform_normal(const Transform& inv, const float3& n) {
   });
 }
 
+RE_HD inline float4 transform_tangent(const Transform& to_world, const float4& tangent, const float3& n_world)
+{
+  float3 t = transform_vector(to_world, tangent.xyz);
+
+  t = t - n_world * dot(n_world, t);
+
+  if (length_squared(t) <= 1e-12f)
+    return float4(0.0f);
+
+  t = normalize(t);
+
+  float handedness = tangent.w;
+  return float4(t, handedness);
+}
+
 RE_HD inline Transform inverse(const Transform& t) {
   float3 r0 = t.r[0].xyz;
   float3 r1 = t.r[1].xyz;

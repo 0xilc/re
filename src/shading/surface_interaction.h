@@ -12,10 +12,13 @@
 namespace re {
 
 struct SurfaceInteraction {
+  float4 tangent;
   float3 p;
   float3 ng;
   float3 ns;
   float2 uv;
+  float3 wo;
+  float2 bary;
   uint32_t inst_id  = 0;
   uint32_t prim_id  = 0;
   uint32_t mat_id   = 0;
@@ -31,8 +34,10 @@ RE_HD inline SurfaceInteraction make_surface_interaction(const SceneView& sv, co
   si.inst_id = hit.inst_id;
   si.prim_id = hit.prim_id;
   si.uv = interpolate_uv(mesh, hit.prim_id, hit.u, hit.v);
+  si.bary = float2{hit.u, hit.v};
   si.mat_id = mesh.mat_ids[hit.prim_id];
-  
+  si.wo = -ray.dir;
+
   const Triangle tri = transform_triangle(inst.to_world, get_triangle(mesh, hit.prim_id));
   si.p = tri.get_point(hit.u, hit.v);
   
@@ -61,6 +66,12 @@ RE_HD inline SurfaceInteraction make_surface_interaction(const SceneView& sv, co
     si.lod = cone_lod(delta, cone, si.ng, ray.dir);
   }
   
+  if (mesh.tangents != nullptr) {
+    const float4 tangent_local = interpolate_tangent(mesh, si.prim_id, hit.u, hit.v);
+
+    si.tangent = transform_tangent(inst.to_world, tangent_local, si.ns);
+  }
+
   return si;
 }
 

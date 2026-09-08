@@ -7,7 +7,7 @@ tonemap = "reinhard"
 [path_tracer]
 spp       = 64
 max_depth = 8
-integrator = "mis"
+integrator = "naive"
 
 [output]
 file = "cornell.png"
