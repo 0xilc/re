@@ -12,7 +12,6 @@
 #include "render/cpu/texture_cache.h"
 
 namespace re {
-namespace {
 inline uint32_t wrap_index(int i, uint32_t n, WrapMode mode) {
   const int size = static_cast<int>(n);
 
@@ -22,18 +21,6 @@ inline uint32_t wrap_index(int i, uint32_t n, WrapMode mode) {
 
   const int m = i % size;
   return static_cast<uint32_t>(m < 0 ? m + size : m);
-}
-
-inline size_t texel_size(ImageFormat format) {
-  switch (format) {
-    case ImageFormat::RGBA8:
-      return 4 * sizeof(uint8_t);
-
-    case ImageFormat::RGBA32F:
-      return 4 * sizeof(float);
-  }
-
-  return 0;
 }
 
 inline float4 load_texel_rgba8(const uint8_t* p, ColorSpace space) {
@@ -174,7 +161,6 @@ inline float4 fetch_trilinear(const uint8_t* texels,
 
   return lerp(a, b, t);
 }
-} // namespace
 
 inline float4 sample_texture(const uint8_t* texels, const CpuTexture& tex, float2 uv, float lod) {
   assert(tex.ok() && "sampled a texture the cache never committed");

@@ -25,4 +25,13 @@ Image read_image(const uint8_t* bytes, size_t n);
 std::vector<uint8_t> encode_srgb8(const std::vector<float3>& linear);
 bool write_png(const std::string& path, const uint8_t* rgb, int width, int height);
 
+inline size_t texel_size(ImageFormat format) {
+  switch (format) {
+    case ImageFormat::RGBA8:   return kNumChannels * sizeof(uint8_t);
+    case ImageFormat::RGBA32F: return kNumChannels * sizeof(float);
+  }
+
+  return 0;
+}
+
 }

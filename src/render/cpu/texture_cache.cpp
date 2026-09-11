@@ -43,8 +43,8 @@ void TextureCache::commit(const std::vector<TextureDesc>& descs) {
 
     CpuTexture tex;
     tex.base        = static_cast<uint32_t>(arena_.size());
-    tex.width       = static_cast<uint16_t>(image.width);
-    tex.height      = static_cast<uint16_t>(image.height);
+    tex.width       = image.width;
+    tex.height      = image.height;
     tex.level_count = static_cast<uint8_t>(std::min<size_t>(image.levels.size(), kMaxMipLevels));
     tex.space       = image.space;
     tex.wrap_u      = image.wrap_u;

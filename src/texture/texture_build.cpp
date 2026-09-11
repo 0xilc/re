@@ -10,16 +10,6 @@
 
 namespace re {
 namespace {
-
-size_t texel_size(const ImageFormat cf) {
-  switch (cf) {
-    case re::ImageFormat::RGBA8:   return 4 * sizeof(uint8_t);
-    case re::ImageFormat::RGBA32F: return 4 * sizeof(float);
-  }
-
-  return 0;
-}
-
 float4 load_texel(const std::vector<uint8_t>& data,
                   size_t texel,
                   ImageFormat format,
