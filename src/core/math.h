@@ -147,6 +147,10 @@ RE_HD inline float3 lerp(const float3 a, const float3 b, const float t) {
   return a + (b - a) * t;
 }
 
+RE_HD inline float4 lerp(const float4 a, const float4 b, const float t) {
+  return a + (b - a) * t;
+}
+
 RE_HD inline float3 min3(const float3 a, const float3 b) {
   return float3(
     fminf(a.x, b.x),
