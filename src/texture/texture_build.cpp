@@ -85,12 +85,6 @@ TextureImage build_texture(const TextureDesc& d) {
     return {};
   }
 
-  const size_t expected = static_cast<size_t>(raw.width) * raw.height * kNumChannels;
-  if (raw.data.size() != expected) {
-    log_error("texture: {} decoded to {} bytes, expected {}", d.name, raw.data.size(), expected);
-    return {};
-  }
-
   TextureImage out;
   out.width = raw.width;
   out.height = raw.height;
