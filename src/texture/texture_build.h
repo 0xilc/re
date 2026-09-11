@@ -18,7 +18,7 @@ struct TextureImage {
   TexFilter filter    = TexFilter::Trilinear;
   ImageFormat format  = ImageFormat::RGBA8;
 
-  bool ok() const { return !levels.empty(); }
+  bool ok() const { return !levels.empty() && width != 0 && height != 0; }
 };
 
 TextureImage build_texture(const TextureDesc& desc);
