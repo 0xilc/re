@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "core/log.h"
+#include "io/image_io.h"
 #include "scene/texture_desc.h"
 #include "texture/texture_build.h"
 
@@ -18,7 +19,8 @@ CpuTexture placeholder() {
   tex.height      = 1;
   tex.level_count = 1;
   tex.space       = ColorSpace::Linear;
-
+  tex.format      = ImageFormat::RGBA8;
+  
   return tex;
 }
 
@@ -48,6 +50,7 @@ void TextureCache::commit(const std::vector<TextureDesc>& descs) {
     tex.wrap_u      = image.wrap_u;
     tex.wrap_v      = image.wrap_v;
     tex.filter      = image.filter;
+    tex.format      = image.format;
 
     uint32_t offset = 0;
     for (uint8_t l = 0; l < tex.level_count; ++l) {

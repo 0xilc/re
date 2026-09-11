@@ -4,20 +4,23 @@
 #include <vector>
 
 #include "core/color.h"
+#include "io/image_io.h"
 #include "scene/texture_desc.h"
 
 inline constexpr uint32_t kMaxMipLevels = 16;
 
 namespace re {
 struct CpuTexture {
-  uint32_t  base = 0;
-  uint32_t  mip_offsets[kMaxMipLevels] = {};
-  uint16_t  width = 0, height = 0;
-  uint8_t   level_count = 0;
-  ColorSpace space = ColorSpace::SRGB;
-  WrapMode wrap_u = WrapMode::Repeat;
-  WrapMode wrap_v = WrapMode::Repeat;
-  TexFilter filter = TexFilter::Trilinear;
+  uint32_t    base        = 0;
+  uint32_t    mip_offsets[kMaxMipLevels] = {};
+  uint32_t    width       = 0; 
+  uint32_t    height      = 0;
+  uint8_t     level_count = 0;
+  ColorSpace  space       = ColorSpace::SRGB;
+  WrapMode    wrap_u      = WrapMode::Repeat;
+  WrapMode    wrap_v      = WrapMode::Repeat;
+  TexFilter   filter      = TexFilter::Trilinear;
+  ImageFormat format      = ImageFormat::RGBA8;
 
   bool ok() const { return level_count > 0; }
 };
