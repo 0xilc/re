@@ -1,44 +1,107 @@
 #include "io/image_io.h"
 
 #include <stb_image_write.h>
-#include <cmath>
 #include <stb_image.h>
+#include <cmath>
 
 #include "core/log.h"
 #include "core/color.h"
 
 namespace re {
-namespace {
-// stbi_failure_reason() is null until stb has actually failed once.
-const char* failure_reason() {
-  const char* reason = stbi_failure_reason();
-  return reason ? reason : "unknown";
-}
 
-ImageData finish(uint8_t* p, int w, int h) {
-  ImageData img;
-  if (!p) return img;
+Image read_image(const std::string& path) {
+  const bool is_hdr = stbi_is_hdr(path.c_str()) != 0;
+  int w = 0, h = 0, channels = 0;
+  
+  Image img;
+  if (is_hdr) {
+    float* p = stbi_loadf(path.c_str(), &w, &h, &channels, kNumChannels);
+    if (!p) {
+      log_error("read_image failed: {}", path);
+      return {};
+    }
+
+    img.width  = static_cast<uint32_t>(w);
+    img.height = static_cast<uint32_t>(h);
+    img.format = ImageFormat::RGBA32F;
+
+    const size_t size = static_cast<size_t>(w) * static_cast<size_t>(h) * kNumChannels * sizeof(float);
+    
+    const uint8_t* begin = reinterpret_cast<const uint8_t*>(p);
+    img.data.assign(begin, begin + size);
+
+    stbi_image_free(p);
+    return img;
+  }
+
+  uint8_t* p = stbi_load(path.c_str(), &w, &h, &channels, kNumChannels);
+  if (!p) {
+    log_error("read_image failed: {}", path);
+    return {};
+  }
+
   img.width  = static_cast<uint32_t>(w);
   img.height = static_cast<uint32_t>(h);
-  img.pixels.assign(p, p + static_cast<size_t>(w) * static_cast<size_t>(h) * 4);
+  img.format = ImageFormat::RGBA8;
+
+  const size_t size =
+      static_cast<size_t>(w) *
+      static_cast<size_t>(h) *
+      kNumChannels;
+
+  img.data.assign(p, p + size);
+
   stbi_image_free(p);
   return img;
 }
-}  // namespace
 
-ImageData read_image(const std::string& path) {
-  int w = 0, h = 0, n = 0;
-  uint8_t* p = stbi_load(path.c_str(), &w, &h, &n, 4);   // 4 = RGBA'ya zorla
-  if (!p) log_error("decode_image failed: {} ({})", path, failure_reason());
-  return finish(p, w, h);
-}
-
-ImageData read_image(const uint8_t* bytes, size_t n) {
+Image read_image(const uint8_t* bytes, size_t n) {
   if (!bytes || n == 0) return {};
-  int w = 0, h = 0, ch = 0;
-  uint8_t* p = stbi_load_from_memory(bytes, static_cast<int>(n), &w, &h, &ch, 4);
-  if (!p) log_error("decode_image (embedded) failed: {}", failure_reason());
-  return finish(p, w, h);
+
+  const int len = static_cast<int>(n);
+  const bool is_hdr = stbi_is_hdr_from_memory(bytes, len) != 0;
+  int w = 0, h = 0, channels = 0;
+
+  Image img;
+  if (is_hdr) {
+    float* p =
+        stbi_loadf_from_memory(bytes, len, &w, &h, &channels, kNumChannels);
+
+    if (!p) {
+      log_error("read_image embedded failed");
+      return {};
+    }
+
+    img.width  = static_cast<uint32_t>(w);
+    img.height = static_cast<uint32_t>(h);
+    img.format = ImageFormat::RGBA32F;
+
+    const size_t size = static_cast<size_t>(w) * static_cast<size_t>(h) * kNumChannels * sizeof(float);
+    
+    const uint8_t* begin = reinterpret_cast<const uint8_t*>(p);
+    img.data.assign(begin, begin + size);
+
+    stbi_image_free(p);
+    return img;
+  }
+
+  uint8_t* p =
+      stbi_load_from_memory(bytes, len, &w, &h, &channels, kNumChannels);
+
+  if (!p) {
+    log_error("read_image embedded failed");
+    return {};
+  }
+
+  img.width  = static_cast<uint32_t>(w);
+  img.height = static_cast<uint32_t>(h);
+  img.format = ImageFormat::RGBA8;
+
+  const size_t size = static_cast<size_t>(w) * static_cast<size_t>(h) * kNumChannels;
+  img.data.assign(p, p + size);
+
+  stbi_image_free(p);
+  return img;
 }
 
 std::vector<uint8_t> encode_srgb8(const std::vector<float3>& linear) {

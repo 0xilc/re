@@ -35,7 +35,7 @@ inline float4 fetch_nearest(const uint8_t* texels, const CpuTexture& tex, uint8_
   const uint32_t x = wrap_index(static_cast<int>(std::floor(uv.x * static_cast<float>(w))), w, tex.wrap_u);
   const uint32_t y = wrap_index(static_cast<int>(std::floor(uv.y * static_cast<float>(h))), h, tex.wrap_v);
 
-  const uint8_t* texel = base + (static_cast<size_t>(y) * w + x) * kTextureChannels;
+  const uint8_t* texel = base + (static_cast<size_t>(y) * w + x) * kNumChannels;
   const bool   is_srgb = tex.space == ColorSpace::SRGB;
   
   return float4{
@@ -74,10 +74,10 @@ inline float4 fetch_bilinear(const uint8_t* texels, const CpuTexture& tex, uint8
   for (uint32_t ch = 0; ch < 4; ++ch) {
     const bool curved = srgb && ch < 3;
 
-    const float t00 = decode_texel(base[(row0 + x0) * kTextureChannels + ch], curved);
-    const float t10 = decode_texel(base[(row0 + x1) * kTextureChannels + ch], curved);
-    const float t01 = decode_texel(base[(row1 + x0) * kTextureChannels + ch], curved);
-    const float t11 = decode_texel(base[(row1 + x1) * kTextureChannels + ch], curved);
+    const float t00 = decode_texel(base[(row0 + x0) * kNumChannels + ch], curved);
+    const float t10 = decode_texel(base[(row0 + x1) * kNumChannels + ch], curved);
+    const float t01 = decode_texel(base[(row1 + x0) * kNumChannels + ch], curved);
+    const float t11 = decode_texel(base[(row1 + x1) * kNumChannels + ch], curved);
 
     c[ch] = lerp(lerp(t00, t10, fx), lerp(t01, t11, fx), fy);
   }

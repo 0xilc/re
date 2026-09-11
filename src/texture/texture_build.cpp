@@ -27,7 +27,7 @@ uint32_t level_count(uint32_t width, uint32_t height) {
 
 std::vector<uint8_t> downsample(const std::vector<uint8_t>& src, uint32_t src_w, uint32_t src_h,
                                 uint32_t dst_w, uint32_t dst_h, bool srgb) {
-  std::vector<uint8_t> dst(static_cast<size_t>(dst_w) * dst_h * kTextureChannels);
+  std::vector<uint8_t> dst(static_cast<size_t>(dst_w) * dst_h * kNumChannels);
 
   for (uint32_t y = 0; y < dst_h; ++y) {
     const uint32_t y0 = std::min(2 * y, src_h - 1);
@@ -38,14 +38,14 @@ std::vector<uint8_t> downsample(const std::vector<uint8_t>& src, uint32_t src_w,
       const uint32_t x1 = std::min(x0 + 1, src_w - 1);
 
       const size_t taps[4] = {
-          (static_cast<size_t>(y0) * src_w + x0) * kTextureChannels,
-          (static_cast<size_t>(y0) * src_w + x1) * kTextureChannels,
-          (static_cast<size_t>(y1) * src_w + x0) * kTextureChannels,
-          (static_cast<size_t>(y1) * src_w + x1) * kTextureChannels,
+          (static_cast<size_t>(y0) * src_w + x0) * kNumChannels,
+          (static_cast<size_t>(y0) * src_w + x1) * kNumChannels,
+          (static_cast<size_t>(y1) * src_w + x0) * kNumChannels,
+          (static_cast<size_t>(y1) * src_w + x1) * kNumChannels,
       };
 
-      const size_t out = (static_cast<size_t>(y) * dst_w + x) * kTextureChannels;
-      for (uint32_t c = 0; c < kTextureChannels; ++c) {
+      const size_t out = (static_cast<size_t>(y) * dst_w + x) * kNumChannels;
+      for (uint32_t c = 0; c < kNumChannels; ++c) {
         const bool curved = srgb && c < 3;
 
         float sum = 0.0f;
@@ -77,17 +77,17 @@ void build_mip_chain(TextureImage& tex) {
 }  // namespace
 
 TextureImage build_texture(const TextureDesc& d) {
-  ImageData raw = d.bytes.empty() ? read_image(d.path)
-                                  : read_image(d.bytes.data(), d.bytes.size());
+  Image raw = d.bytes.empty() ? read_image(d.path)
+                              : read_image(d.bytes.data(), d.bytes.size());
 
   if (!raw.ok()) {
     log_error("texture: could not decode {}", d.name.empty() ? d.path : d.name);
     return {};
   }
 
-  const size_t expected = static_cast<size_t>(raw.width) * raw.height * kTextureChannels;
-  if (raw.pixels.size() != expected) {
-    log_error("texture: {} decoded to {} bytes, expected {}", d.name, raw.pixels.size(), expected);
+  const size_t expected = static_cast<size_t>(raw.width) * raw.height * kNumChannels;
+  if (raw.data.size() != expected) {
+    log_error("texture: {} decoded to {} bytes, expected {}", d.name, raw.data.size(), expected);
     return {};
   }
 
@@ -98,7 +98,8 @@ TextureImage build_texture(const TextureDesc& d) {
   out.wrap_u = d.wrap_u;
   out.wrap_v = d.wrap_v;
   out.filter = d.filter;
-  out.levels.push_back(std::move(raw.pixels));
+  out.format = raw.format;
+  out.levels.push_back(std::move(raw.data));
   build_mip_chain(out);
 
   return out;

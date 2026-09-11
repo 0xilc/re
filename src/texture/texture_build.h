@@ -4,19 +4,19 @@
 
 #include "core/color.h"
 #include "scene/texture_desc.h"
+#include "io/image_io.h"
 
 namespace re {
 
-inline constexpr uint32_t kTextureChannels = 4;
-
 struct TextureImage {
   std::vector<std::vector<uint8_t>> levels;
-  uint32_t width    = 0;
-  uint32_t height   = 0;
-  ColorSpace space  = ColorSpace::SRGB;
-  WrapMode wrap_u   = WrapMode::Repeat;
-  WrapMode wrap_v   = WrapMode::Repeat;
-  TexFilter filter  = TexFilter::Trilinear;
+  uint32_t width      = 0;
+  uint32_t height     = 0;
+  ColorSpace space    = ColorSpace::SRGB;
+  WrapMode wrap_u     = WrapMode::Repeat;
+  WrapMode wrap_v     = WrapMode::Repeat;
+  TexFilter filter    = TexFilter::Trilinear;
+  ImageFormat format  = ImageFormat::RGBA8;
 
   bool ok() const { return !levels.empty(); }
 };
