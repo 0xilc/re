@@ -4,7 +4,7 @@
 
 #include "core/log.h"
 #include "io/image_io.h"
-#include "scene/texture_desc.h"
+#include "texture/texture_desc.h"
 #include "texture/texture_build.h"
 
 namespace re {

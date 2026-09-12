@@ -5,7 +5,7 @@
 
 #include "core/color.h"
 #include "io/image_io.h"
-#include "scene/texture_desc.h"
+#include "texture/texture_desc.h"
 
 inline constexpr uint32_t kMaxMipLevels = 16;
 

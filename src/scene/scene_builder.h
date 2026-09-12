@@ -8,7 +8,7 @@
 #include "scene/material.h"
 #include "scene/instance.h"
 #include "scene/scene_view.h"
-#include "scene/texture_desc.h"
+#include "texture/texture_desc.h"
 
 namespace re {
 struct Scene {

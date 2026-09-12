@@ -3,7 +3,7 @@
 #include <cstdint>
 
 #include "core/color.h"
-#include "scene/texture_desc.h"
+#include "texture/texture_desc.h"
 #include "io/image_io.h"
 
 namespace re {
