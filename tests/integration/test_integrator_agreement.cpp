@@ -9,7 +9,7 @@
 #include "integrator/path_integrator.h"
 #include "light/cdf_light_build.h"
 #include "render/cpu/cpu_services.h"
-#include "render/cpu/texture_cache.h"
+#include "texture/texture_cache.h"
 #include "shading/ray_cone.h"
 #include "scene/scene_builder.h"
 

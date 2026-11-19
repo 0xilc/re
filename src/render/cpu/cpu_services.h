@@ -5,7 +5,7 @@
 #include "core/types.h"
 #include "accel/accel.h"
 #include "integrator/device_services.h"
-#include "render/cpu/texture_cache.h"
+#include "texture/texture_cache.h"
 #include "render/cpu/cpu_texture_sample.h"
 
 namespace re {

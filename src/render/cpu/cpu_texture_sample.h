@@ -9,7 +9,7 @@
 #include "core/types.h"
 #include "core/math.h"
 #include "texture/texture_build.h"
-#include "render/cpu/texture_cache.h"
+#include "texture/texture_cache.h"
 
 namespace re {
 inline uint32_t wrap_index(int i, uint32_t n, WrapMode mode) {

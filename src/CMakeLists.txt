@@ -17,7 +17,7 @@ add_library(re_core
   io/gltf/helpers/mesh_tangents.cpp
   render/cpu/cpu_debug_renderer.cpp
   render/cpu/cpu_path_renderer.cpp
-  render/cpu/texture_cache.cpp
+  texture/texture_cache.cpp
   driver/offline_driver.cpp
   scene/scene_builder.cpp
   scene/mesh.cpp

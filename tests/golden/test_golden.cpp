@@ -13,7 +13,7 @@
 #include "io/image_io.h"
 #include "parallel/thread_pool.h"
 #include "render/cpu/cpu_path_renderer.h"
-#include "render/cpu/texture_cache.h"
+#include "texture/texture_cache.h"
 #include "light/cdf_light_build.h"
 #include "scene/scene_builder.h"
 #include "scene/scene_view.h"
